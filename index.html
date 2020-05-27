@@ -8,44 +8,56 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-    <div class="cassett">
-        <div class="cassette-front"></div>
-        <div class="cassette-top"></div>
+    <div class="tapedeck">
+        <div class="cassett">
+            <div class="cassette-front"></div>
+            <div class="cassette-top"></div>
 
-        <div class="top-box"></div>
-        <span class="pad"></span>
+            <div class="top-box"></div>
+            <span class="pad"></span>
 
-        <span class="roller-fixed roller-fixed-1"></span>
-        <span class="roller-fixed roller-fixed-2"></span>
-        <span class="roller-fixed roller-fixed-3"></span>
-        <span class="roller-fixed roller-fixed-4"></span>
+            <span class="roller-fixed roller-fixed-1"></span>
+            <span class="roller-fixed roller-fixed-2"></span>
+            <span class="roller-fixed roller-fixed-3"></span>
+            <span class="roller-fixed roller-fixed-4"></span>
 
-        <span class="roller-fixed-min roller-fixed-min-1"></span>
-        <span class="roller-fixed-min roller-fixed-min-2"></span>
+            <span class="roller-fixed-min roller-fixed-min-1"></span>
+            <span class="roller-fixed-min roller-fixed-min-2"></span>
 
-        <span class="screw screw-1"></span>
-        <span class="screw screw-2"></span>
-        <span class="screw screw-3"></span>
-        <span class="screw screw-4"></span>
+            <span class="screw screw-1"></span>
+            <span class="screw screw-2"></span>
+            <span class="screw screw-3"></span>
+            <span class="screw screw-4"></span>
 
-        <div class="roller-main roller-main-left"></div>
-        <div class="roller-main roller-main-right"></div>
+            <div class="roller-main roller-main-left"></div>
+            <div class="roller-main roller-main-right"></div>
 
-        <div class="roller roller-left"></div>
-        <div class="roller roller-right"></div>
+            <div class="roller roller-left"></div>
+            <div class="roller roller-right"></div>
 
-        <div class="roller-mini"></div>
+            <div class="roller-mini"></div>
 
-        <svg class="headband-container" viewBox="0 0 512 320">
-            <defs>
-                <clipPath id="_clipPath_K781DUh2QAIQkFuHUy8P7HyTLMTwoWhz">
-                    <rect width="512" height="320"/>
-                </clipPath>
-            </defs>
-            <g clip-path="url(#_clipPath_K781DUh2QAIQkFuHUy8P7HyTLMTwoWhz)">
-                <path class="headband" id="headband" d=" M 12 78 Q 16.75 37 25 20 C 28.427 12.938 35.198 7.926 43 8 C 50.225 8.069 98.105 9.355 128.501 9.866 C 145.583 10.154 163.708 43.353 180.752 43.487 C 205.311 43.681 231.394 32.018 255.969 33.329 C 282.75 33 307.25 44.75 331.738 43.942 C 351 38.25 364 13.25 380.751 10.632 C 427.326 10.739 461.608 8.86 468 9 C 475.31 9.161 482.476 13.096 485 20 Q 493.5 43.25 500 78 L 500 78" fill="none" vector-effect="non-scaling-stroke" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="3"/>
-            </g>
-        </svg>
+            <svg class="headband-container" viewBox="0 0 512 320">
+                <defs>
+                    <clipPath id="_clipPath_K781DUh2QAIQkFuHUy8P7HyTLMTwoWhz">
+                        <rect width="512" height="320"/>
+                    </clipPath>
+                </defs>
+                <g clip-path="url(#_clipPath_K781DUh2QAIQkFuHUy8P7HyTLMTwoWhz)">
+                    <path class="headband" id="headband" d=" M 12 78 Q 16.75 37 25 20 C 28.427 12.938 35.198 7.926 43 8 C 50.225 8.069 98.105 9.355 128.501 9.866 C 145.583 10.154 163.708 43.353 180.752 43.487 C 205.311 43.681 231.394 32.018 255.969 33.329 C 282.75 33 307.25 44.75 331.738 43.942 C 351 38.25 364 13.25 380.751 10.632 C 427.326 10.739 461.608 8.86 468 9 C 475.31 9.161 482.476 13.096 485 20 Q 493.5 43.25 500 78 L 500 78" fill="none" vector-effect="non-scaling-stroke" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="3"/>
+                </g>
+            </svg>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-play"><i></i><span>play</span></button>
+            <button class="btn btn-pause"><i></i><span>pause</span></button>
+            <button class="btn btn-backward"><i></i><span>rew</span></button>
+            <button class="btn btn-forward"><i></i><span>ff</span></button>
+            <button class="btn btn-stop"><i></i><span>stop</span></button>
+        </div>
+
+        <div class="time"></div>
     </div>
 
     <script src="./main.js"></script>
