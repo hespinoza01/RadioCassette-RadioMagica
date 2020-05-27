@@ -1,3 +1,17 @@
+@font-face {
+  font-family: font501;
+  src:url('./fonts/501.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: font502;
+  src:url('./fonts/502.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root{
     --cassette-scale: 3.2;
 }
