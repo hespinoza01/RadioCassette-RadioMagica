@@ -11,24 +11,24 @@
     <div class="tapedeck">
         <header class="tapedeck-title">
             <div class="title">
-                <img id="title-image" style="width: 100%; height: 100%" src="https://i.pinimg.com/originals/83/81/17/8381171693f7fedc6b6411c39f15f9fb.jpg" alt="">
+                <img id="title-image" style="width: 100%; height: 100%" src="" alt="">
                 <svg viewBox="0 0 352 33" preserveAspectRatio="xMidYMid slice">
                     <defs>
                         <mask id="mask-title" x="0" y="0" width="100%" height="100%" >
                             <rect x="0" y="0" width="100%" height="100%" />
-                            <text id="title-text" class="text-title" x="50%"  y="50%" dominant-baseline="middle">Radio Maracaibo</text>
+                            <text id="title-text" class="text-title" x="50%"  y="50%" dominant-baseline="middle"></text>
                         </mask>
                     </defs>
                     <rect class="mask-title" x="0" y="0" />
               </svg>
             </div>
             <div class="slogan">
-                <img id="slogan-image" style="width: 100%; height: 100%" src="https://i.pinimg.com/originals/83/81/17/8381171693f7fedc6b6411c39f15f9fb.jpg" alt="">
+                <img id="slogan-image" style="width: 100%; height: 100%" src="" alt="">
                 <svg viewBox="0 0 163 48" preserveAspectRatio="xMidYMid slice">
                     <defs>
                         <mask id="mask-slogan" x="0" y="0" width="100%" height="100%" >
                             <rect x="0" y="0" width="100%" height="100%" />
-                            <text id="slogan-text" class="text-slogan" x="50%"  y="50%" dominant-baseline="middle">la radio alegre</text>
+                            <text id="slogan-text" class="text-slogan" x="50%"  y="50%" dominant-baseline="middle"></text>
                         </mask>
                     </defs>
                     <rect class="mask-slogan" x="0" y="0" />
@@ -77,24 +77,24 @@
         </div>
 
         <div class="controls">
-            <button id="btn-play" class="btn btn-play"><i></i><span>play</span></button>
-            <button id="btn-pause" class="btn btn-pause"><i></i><span>pause</span></button>
-            <button id="btn-back" class="btn btn-backward"><i></i><span>rew</span></button>
-            <button id="btn-forward" class="btn btn-forward"><i></i><span>ff</span></button>
-            <button id="btn-stop" class="btn btn-stop"><i></i><span>stop</span></button>
+            <button id="btn-play" class="btn btn-play" disabled><i></i><span>play</span></button>
+            <button id="btn-pause" class="btn btn-pause" disabled><i></i><span>pause</span></button>
+            <button id="btn-back" class="btn btn-backward" disabled><i></i><span>rew</span></button>
+            <button id="btn-forward" class="btn btn-forward" disabled><i></i><span>ff</span></button>
+            <button id="btn-stop" class="btn btn-stop" disabled><i></i><span>stop</span></button>
         </div>
 
         <div class="information">
             <div class="bars">
                 <p class="progress-song">
-                    <span id="progress-song-value" class="progress-song-value" id="progress-song-value">100</span>
+                    <span id="progress-song-value" class="progress-song-value" id="progress-song-value">0</span>
                     <span class="progress-song-porc">%</span>
                 </p>
                 <div id="progress-bar" class="progress-bar"></div>
             </div>
 
             <div class="time">
-                <p id="current-time" class="time__current">10<span style='color: #e30052'>:</span>00</p>
+                <p id="current-time" class="time__current">00<span style='color: #e30052'>:</span>00</p>
                 <p class="time__separator" style="color: purple"> / </p>
                 <p id="last-time" class="time__last">00<span style='color: #e30052'>:</span>00</p>
             </div>

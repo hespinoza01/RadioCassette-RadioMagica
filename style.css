@@ -333,6 +333,9 @@ html, body{
         0 6px 7px rgba(0,0,0,0.3),
         0 4px 1px rgba(0,0,0,0.5);
 }
+.btn:disabled{
+    opacity: .5;
+}
 .btn.active, .btn:active{
     height: 50px;
     background-image: url(./img/metal_dark.jpg);
@@ -418,9 +421,9 @@ html, body{
 
 .progress-bar{
     display: inline-block;
-    width: 50px;
+    width: 0;
     height: 100%;
-    background-color: #706A5E;
+    background-color: #8C8989;
 }
 
 .time{
