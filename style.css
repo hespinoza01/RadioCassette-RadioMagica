@@ -54,6 +54,7 @@
   font-style: normal;
 }
 
+
 :root{
     --cassette-scale: 3.2;
 }
@@ -71,13 +72,16 @@ html, body{
     user-select: none;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .tapedeck{
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: calc(var(--cassette-scale) * 10rem);
+    margin: 0 auto;
+    overflow: hidden;
 }
 
 .cassett{
@@ -443,4 +447,102 @@ html, body{
 }
 .time__last.remaining{
     font-family: font603;
+}
+
+svg {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+}
+
+svg text {
+  font-weight: 700;
+  text-transform: capitalize;
+  text-anchor: middle;
+  /*transform: translate(-25%);*/
+}
+
+.text-title{
+    font-size: 25px;
+    font-family: font501;
+}
+.text-slogan{
+    font-family: font502;
+    font-size: 15px;
+}
+
+svg rect {
+  fill: white;
+}
+
+.mask-title {
+    -webkit-mask: url(#mask-title);
+    mask: url(#mask-title);
+    width: 100%;
+    height: 100%;
+}
+
+.title{
+    position: relative;
+    width: 512px;
+    height: 48px;
+    overflow: hidden;
+    margin: 0 auto;
+}
+.title img, .slogan img{
+    object-fit: cover;
+}
+
+.slogan{
+    position: relative;
+    overflow: hidden;
+    width: 404px;
+    height: 38px;
+    margin: 0 auto;
+}
+
+.mask-slogan{
+    -webkit-mask: url(#mask-slogan);
+    mask: url(#mask-slogan);
+    width: 100%;
+    height: 100%;
+}
+
+.tapedeck-title{
+    margin-bottom: 1rem;
+}
+
+
+@media (max-width: 768px){
+    :root{
+        --cassette-scale: 2.2;
+    }
+
+    .title{
+        width: 350px;
+        height: 32px;
+    }
+
+    .slogan{
+        width: 250px;
+        height: 25px;
+    }
+
+    .btn{
+        flex-grow: 1;
+    }
+
+    .btn-play{
+        width: 18%;
+    }
+
+    .btn span{
+        font-size: 6px;
+    }
+
+    .time{
+        font-size: 1rem;
+    }
 }
