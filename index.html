@@ -57,7 +57,21 @@
             <button class="btn btn-stop"><i></i><span>stop</span></button>
         </div>
 
-        <div class="time"></div>
+        <div class="information">
+            <div class="bars">
+                <p class="progress-song">
+                    <span class="progress-song-value" id="progress-song-value">100</span>
+                    <span class="progress-song-porc">%</span>
+                </p>
+                <div class="progress-bar"></div>
+            </div>
+
+            <div class="time">
+                <p id="current-time" class="time__current">10<span style='color: #e30052'>:</span>00</p>
+                <p class="time__separator" style="color: purple"> / </p>
+                <p id="last-time" class="time__last">00<span style='color: #e30052'>:</span>00</p>
+            </div>
+        </div>
     </div>
 
     <script src="./main.js"></script>

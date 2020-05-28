@@ -374,3 +374,73 @@ html, body{
     text-shadow: 0 1px 1px rgba(255,255,255,0.8);
 }
 .btn span, .btn i{ transform: translateY(5px); }
+
+.information{
+    display: flex;
+    flex-direction: row;
+    margin-top: 1rem;
+    width: 100%;
+    height: 2.5rem;
+}
+
+.bars{
+    display: flex;
+    flex-direction: row;
+    width: 50%;
+    height: 100%;
+    background-color: #0F751F;
+}
+
+.progress-song{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 4rem;
+    height: 100%;
+    font-size: 1rem;
+    background-color: black;
+}
+.progress-song-value{
+    color: yellow;
+    font-family: font604;
+    margin-right: .5rem;
+    font-size: 1.2rem;
+}
+.progress-song-porc{
+    color: white;
+    font-family: font605;
+}
+
+.progress-bar{
+    display: inline-block;
+    width: 50px;
+    height: 100%;
+    background-color: #706A5E;
+}
+
+.time{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 50%;
+    height: 100%;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #8C8989;
+}
+.time > p{
+    display: inline-block;
+}
+.time__current{
+    font-family: font601;
+    margin-right: .5rem;
+}
+.time__last{
+    font-family: font602;
+    margin-left: .5rem;
+}
+.time__last.remaining{
+    font-family: font603;
+}
