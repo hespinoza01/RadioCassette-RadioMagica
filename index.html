@@ -11,24 +11,24 @@
     <div class="tapedeck">
         <header class="tapedeck-title">
             <div class="title">
-                <img style="width: 100%; height: 100%" src="https://i.pinimg.com/originals/83/81/17/8381171693f7fedc6b6411c39f15f9fb.jpg" alt="">
+                <img id="title-image" style="width: 100%; height: 100%" src="https://i.pinimg.com/originals/83/81/17/8381171693f7fedc6b6411c39f15f9fb.jpg" alt="">
                 <svg viewBox="0 0 352 33" preserveAspectRatio="xMidYMid slice">
                     <defs>
                         <mask id="mask-title" x="0" y="0" width="100%" height="100%" >
                             <rect x="0" y="0" width="100%" height="100%" />
-                            <text class="text-title" x="50%"  y="50%" dominant-baseline="middle">Radio Maracaibo</text>
+                            <text id="title-text" class="text-title" x="50%"  y="50%" dominant-baseline="middle">Radio Maracaibo</text>
                         </mask>
                     </defs>
                     <rect class="mask-title" x="0" y="0" />
               </svg>
             </div>
             <div class="slogan">
-                <img style="width: 100%; height: 100%" src="https://i.pinimg.com/originals/83/81/17/8381171693f7fedc6b6411c39f15f9fb.jpg" alt="">
+                <img id="slogan-image" style="width: 100%; height: 100%" src="https://i.pinimg.com/originals/83/81/17/8381171693f7fedc6b6411c39f15f9fb.jpg" alt="">
                 <svg viewBox="0 0 163 48" preserveAspectRatio="xMidYMid slice">
                     <defs>
                         <mask id="mask-slogan" x="0" y="0" width="100%" height="100%" >
                             <rect x="0" y="0" width="100%" height="100%" />
-                            <text class="text-slogan" x="50%"  y="50%" dominant-baseline="middle">la radio alegre</text>
+                            <text id="slogan-text" class="text-slogan" x="50%"  y="50%" dominant-baseline="middle">la radio alegre</text>
                         </mask>
                     </defs>
                     <rect class="mask-slogan" x="0" y="0" />
@@ -56,8 +56,8 @@
             <span class="screw screw-3"></span>
             <span class="screw screw-4"></span>
 
-            <div class="roller-main roller-main-left"></div>
-            <div class="roller-main roller-main-right"></div>
+            <div id="roller-left" class="roller-main roller-main-left"></div>
+            <div id="roller-right" class="roller-main roller-main-right"></div>
 
             <div class="roller roller-left"></div>
             <div class="roller roller-right"></div>
@@ -77,20 +77,20 @@
         </div>
 
         <div class="controls">
-            <button class="btn btn-play"><i></i><span>play</span></button>
-            <button class="btn btn-pause"><i></i><span>pause</span></button>
-            <button class="btn btn-backward"><i></i><span>rew</span></button>
-            <button class="btn btn-forward"><i></i><span>ff</span></button>
-            <button class="btn btn-stop"><i></i><span>stop</span></button>
+            <button id="btn-play" class="btn btn-play"><i></i><span>play</span></button>
+            <button id="btn-pause" class="btn btn-pause"><i></i><span>pause</span></button>
+            <button id="btn-back" class="btn btn-backward"><i></i><span>rew</span></button>
+            <button id="btn-forward" class="btn btn-forward"><i></i><span>ff</span></button>
+            <button id="btn-stop" class="btn btn-stop"><i></i><span>stop</span></button>
         </div>
 
         <div class="information">
             <div class="bars">
                 <p class="progress-song">
-                    <span class="progress-song-value" id="progress-song-value">100</span>
+                    <span id="progress-song-value" class="progress-song-value" id="progress-song-value">100</span>
                     <span class="progress-song-porc">%</span>
                 </p>
-                <div class="progress-bar"></div>
+                <div id="progress-bar" class="progress-bar"></div>
             </div>
 
             <div class="time">
