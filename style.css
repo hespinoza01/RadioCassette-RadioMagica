@@ -81,7 +81,6 @@ html, body{
     align-items: center;
     width: calc(var(--cassette-scale) * 10rem);
     margin: 0 auto;
-    overflow: hidden;
 }
 
 .cassett{
@@ -90,6 +89,8 @@ html, body{
     height: calc(var(--cassette-scale) * 6.3rem);
     border: 1px solid gainsboro;
     border-radius: 7px;
+    perspective: 800px;
+    box-shadow: 0 0 15px 0 gainsboro;
     overflow: hidden;
 }
 
@@ -172,22 +173,39 @@ html, body{
 .screw-4{ bottom: .3rem; left: .3rem; }
 
 .roller-main{
+    --roller-color: transparent;
     position: absolute;
     width: calc(var(--cassette-scale) * 1.4rem);
     height: calc(var(--cassette-scale) * 1.4rem);
     border-radius: 100%;
     background: 
-        radial-gradient(circle, #f6f6f6 25%, transparent 25%, transparent 40%, #F72725 40%),
-        linear-gradient(85deg, transparent 46%, #F72725 46%, #F72725 53%, transparent 53%),
-        linear-gradient(20deg, transparent 46%, #F72725 46%, #F72725 53%, transparent 53%),
-        linear-gradient(145deg, transparent 47%, #F72725 46%, #F72725 53%, transparent 53%);
-    box-shadow: 0 0 0 45px #333333;
+        radial-gradient(circle, #f6f6f6 25%, transparent 25%, transparent 40%, var(--roller-color) 40%),
+        linear-gradient(85deg, transparent 46%, var(--roller-color) 46%, var(--roller-color) 53%, transparent 53%),
+        linear-gradient(20deg, transparent 46%, var(--roller-color) 46%, var(--roller-color) 53%, transparent 53%),
+        linear-gradient(145deg, transparent 47%, var(--roller-color) 46%, var(--roller-color) 53%, transparent 53%);
+    box-shadow: 0 0 0 45px currentColor;
     z-index: 95;
 }
+.roller-main.hadbandcolor-black{
+    color: #333333;
+}
+.roller-main.hadbandcolor-chocolate{
+    color: #2E1503;
+}
+.roller-main.rollercolor-red{
+    --roller-color: #F72725;
+}
+.roller-main.rollercolor-blue{
+    --roller-color: #4169e1;
+}
+.roller-main.rollercolor-yellow{
+    --roller-color: #FDD817;
+}
+
 .roller-main-left{ 
     top: calc(var(--cassette-scale) * 3.0169rem); 
     left: calc(var(--cassette-scale) * 2.15rem); 
-    box-shadow: 0 0 0 45px yellow;
+    box-shadow: 0 0 0 45px currentColor;
     animation: roller-main-spin 3s linear infinite;
 }
 .roller-main-right{ 

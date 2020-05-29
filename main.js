@@ -191,6 +191,8 @@ const RadioCassette = {
     textoTitulo: 'Radio Maracaibo', // Texto a mostrar como título de la emisora
     imagenEslogan: 'https://i.pinimg.com/originals/83/81/17/8381171693f7fedc6b6411c39f15f9fb.jpg', // url de la imagen a mostrar detrás del texto del eslogan de la emisora
     textoEslogan: 'la radio alegre', // Texto a mostrar como eslogan de la emisora
+    colorCinta: 1, // Estilo del color de la cinta 1=negro, 2=chocolate
+    colorRodo: 1, // Estilo del color de los rodos 1=rojo, 2=azul, 3=amarillo
 };
 
 /*
@@ -628,6 +630,33 @@ function _Audio() {
     return _audio;
 }
 
+function getHadbandColor(value) {
+    switch(value) {
+        case 1: return 'hadbandcolor-black';
+            break;
+
+        case 2: return 'hadbandcolor-chocolate';
+            break;
+
+        default: return '';
+    }
+}
+
+function getRollerColor(value) {
+    switch(value) {
+        case 1: return 'rollercolor-red';
+            break;
+
+        case 2: return 'rollercolor-blue';
+            break;
+
+        case 3: return 'rollercolor-yellow';
+            break;
+
+        default: return '';
+    }
+}
+
 
 window.on('load', () => {
     // Cargar las configuraciones del tocadiscos
@@ -636,6 +665,9 @@ window.on('load', () => {
 
     sloganText.textContent = RadioCassette.textoEslogan;
     sloganImage.src = RadioCassette.imagenEslogan;
+
+    $('.hadbandcolor').forEach(node => node.classList.add(getHadbandColor(RadioCassette.colorCinta)));
+    $('.rollercolor').forEach(node => node.classList.add(getRollerColor(RadioCassette.colorRodo)));
 
     RadioCassette.mostrarTiempoGeneral = (RadioCassette.reproductorTipo == ReproductorTipo.Stream) ? 1 : RadioCassette.mostrarTiempoGeneral;
 
