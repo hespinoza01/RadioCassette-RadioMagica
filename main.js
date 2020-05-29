@@ -78,6 +78,10 @@ window.Node.prototype.css = function(arg){
 };
 document.body.css = window.Node.prototype.css;
 
+String.prototype.numberFromPx = function(){
+    return Number(this.split('px').join(''));
+}
+
 // Prototipo de la función shuffle para crear el arreglo aleatorio de las canciones
 Array.prototype.shuffle = function() {
     let i = this.length, j, temp;
@@ -134,7 +138,9 @@ const titleImage = $('#title-image'),
     progressValue = $('#progress-song-value'),
     progressBar = $('#progress-bar'),
     currentTimeIndicator = $('#current-time'),
-    lastTimeIndicator = $('#last-time');
+    lastTimeIndicator = $('#last-time'),
+    headbandContainer = $('#headband-container'),
+    headband = $('#headband');
 
 // Variables de utilidad
 let currentSong = { index: -1, path: '' },
@@ -145,7 +151,9 @@ let currentSong = { index: -1, path: '' },
     currentTime = 0,
     acumulateTime = 0,
     currentTimeInterval = null,
-    songIndex = 0;
+    songIndex = 0,
+    rollerLeftShadow = 55,
+    rollerRightShadow = 0;
 
 // Arreglo con la lista de las canciones
 const SONGS = new Array(
@@ -503,6 +511,8 @@ function onClickBtnStart(e) {
 
     player.play();
     btnPlay.classList.add("active");
+    rollerLeft.classList.add("active");
+    rollerRight.classList.add("active");
 }
 
 // Presionar el botón de pausa
@@ -517,6 +527,8 @@ function onCLickBtnPause() {
     }
 
     btnPlay.classList.remove("active");
+    rollerLeft.classList.remove("active");
+    rollerRight.classList.remove("active");
 }
 
 // Presionar el botón de retroceder
@@ -596,6 +608,8 @@ function Clean() {
     progressBar.css({ width:  0});
 
     btnPlay.classList.remove("active");
+    rollerLeft.classList.remove("active");
+    rollerRight.classList.remove("active");
 }
 
 // Audio Prototypes
@@ -657,6 +671,37 @@ function getRollerColor(value) {
     }
 }
 
+function drawHeadband() {
+    let [_width, _height] = $('.cassett').css(['width', 'height']).map(i => i.numberFromPx());
+
+    headbandContainer.setAttribute('viewBox', `0 0 ${_width} ${_height}`);
+
+    headband.setAttribute('d',
+        `
+        M ${rollerLeft.css('left').numberFromPx() - rollerLeftShadow}, ${rollerLeft.css('top').numberFromPx() + (rollerLeft.offsetHeight / 2)}
+
+        L ${ $('.roller-fixed-min-1').css('left').numberFromPx() }, ${ $('.roller-fixed-min-1').css('top').numberFromPx() + ($('.roller-fixed-min-1').offsetHeight / 2) + 2 }
+
+        L ${ $('.roller-left').css('left').numberFromPx() }, ${ $('.roller-left').css('top').numberFromPx() + ($('.roller-left').offsetHeight / 2) }
+
+        L ${ $('.roller-left').css('left').numberFromPx() + ($('.roller-left').offsetWidth / 2) }, ${ $('.roller-left').css('top').numberFromPx() }
+
+        L ${ $('.roller-right').css('left').numberFromPx() + ($('.roller-right').offsetWidth) / 2 }, ${ $('.roller-right').css('top').numberFromPx() }
+
+        L ${ $('.roller-right').css('left').numberFromPx() + ($('.roller-right').offsetWidth) }, ${ $('.roller-right').css('top').numberFromPx() + ($('.roller-right').offsetHeight / 2) }
+
+        L ${ $('.roller-fixed-min-2').css('left').numberFromPx() + ($('.roller-fixed-min-2').offsetWidth) }, ${ $('.roller-fixed-min-2').css('top').numberFromPx() + ($('.roller-fixed-min-2').offsetHeight / 2) + 2 }
+
+        L ${rollerRight.css('left').numberFromPx() + rollerRight.offsetWidth + rollerRightShadow}, ${rollerLeft.css('top').numberFromPx() + (rollerRight.offsetHeight / 2)}
+        `
+    );
+}
+
+function drawRollerShadow() {
+    rollerLeft.css({ boxShadow: `0 0 0 ${rollerLeftShadow}px currentColor` });
+    rollerRight.css({ boxShadow: `0 0 0 ${rollerRightShadow}px currentColor` });
+}
+
 
 window.on('load', () => {
     // Cargar las configuraciones del tocadiscos
@@ -667,6 +712,7 @@ window.on('load', () => {
     sloganImage.src = RadioCassette.imagenEslogan;
 
     $('.hadbandcolor').forEach(node => node.classList.add(getHadbandColor(RadioCassette.colorCinta)));
+    headband.classList.add(getHadbandColor(RadioCassette.colorCinta));
     $('.rollercolor').forEach(node => node.classList.add(getRollerColor(RadioCassette.colorRodo)));
 
     RadioCassette.mostrarTiempoGeneral = (RadioCassette.reproductorTipo == ReproductorTipo.Stream) ? 1 : RadioCassette.mostrarTiempoGeneral;
@@ -674,6 +720,10 @@ window.on('load', () => {
     player = new _Audio();
 
     getTotalDurationForPlaylist();
+    drawHeadband();
+    drawRollerShadow();
+
+    window.on('resize', drawHeadband);
 
     btnPlay.on('click', onClickBtnStart);
     btnPause.on('click', onCLickBtnPause);

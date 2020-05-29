@@ -145,12 +145,12 @@ html, body{
 .pad{
     display: block;
     position: absolute;
-    top: calc(var(--cassette-scale) * .65rem - (var(--cassette-scale) * .22rem + 2px));
+    top: calc(var(--cassette-scale) * .65rem - (var(--cassette-scale) * .22rem + 5px));
     left: 50%;
     transform: translateX(-50%);
-    width: calc(var(--cassette-scale) * .5rem);
-    height: calc(var(--cassette-scale) * .22rem);
-    background-color: rgba(51, 51, 51, .9);
+    width: calc(var(--cassette-scale) * .75rem);
+    height: calc(var(--cassette-scale) * .3rem);
+    background-color: rgba(51, 51, 51, .95);
     z-index: 97;
 }
 
@@ -183,7 +183,7 @@ html, body{
         linear-gradient(85deg, transparent 46%, var(--roller-color) 46%, var(--roller-color) 53%, transparent 53%),
         linear-gradient(20deg, transparent 46%, var(--roller-color) 46%, var(--roller-color) 53%, transparent 53%),
         linear-gradient(145deg, transparent 47%, var(--roller-color) 46%, var(--roller-color) 53%, transparent 53%);
-    box-shadow: 0 0 0 45px currentColor;
+    /*box-shadow: 0 0 0 45px currentColor;*/
     z-index: 95;
 }
 .roller-main.hadbandcolor-black{
@@ -201,17 +201,16 @@ html, body{
 .roller-main.rollercolor-yellow{
     --roller-color: #FDD817;
 }
-
+.roller-main.active{
+    animation: roller-main-spin 3s linear infinite;
+}
 .roller-main-left{ 
     top: calc(var(--cassette-scale) * 3.0169rem); 
-    left: calc(var(--cassette-scale) * 2.15rem); 
-    box-shadow: 0 0 0 45px currentColor;
-    animation: roller-main-spin 3s linear infinite;
+    left: calc(var(--cassette-scale) * 2.15rem);
 }
 .roller-main-right{ 
     top: calc(var(--cassette-scale) * 3.0169rem); 
     right: calc(var(--cassette-scale) * 2.15rem);
-    animation: roller-main-spin 3s linear infinite;
 }
 
 @keyframes roller-main-spin{
@@ -263,7 +262,7 @@ html, body{
 }
 
 .roller-fixed-2, .roller-fixed-3{
-    top: calc(var(--cassette-scale) * .28rem);
+    top: calc(var(--cassette-scale) * .55rem);
 }
 .roller-fixed-2{ left: calc(var(--cassette-scale) * 3.25rem); }
 .roller-fixed-3{ right: calc(var(--cassette-scale) * 3.25rem); }
@@ -281,7 +280,7 @@ html, body{
     height: calc(var(--cassette-scale) * .3rem);
     border-radius: 100%;
     background-color: rgba(51, 51, 51, .2);
-    z-index: 95;
+    z-index: 100;
 }
 .roller-fixed-min-1{
     left: 1rem;
@@ -300,7 +299,12 @@ html, body{
 }
 .headband{
     stroke-width: 2;
+}
+.headband.hadbandcolor-black{
     stroke: #333333;
+}
+.headband.hadbandcolor-chocolate{
+    stroke: #2E1503;
 }
 
 
