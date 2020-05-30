@@ -151,9 +151,13 @@ let currentSong = { index: -1, path: '' },
     currentTime = 0,
     acumulateTime = 0,
     currentTimeInterval = null,
+    reverseInterval = null,
     songIndex = 0,
     rollerLeftShadow = 55,
-    rollerRightShadow = 0;
+    rollerRightShadow = 0,
+    headbandShadowProportion = 0,
+    isReverse = false,
+    totalOffset = 0;
 
 // Arreglo con la lista de las canciones
 const SONGS = new Array(
@@ -286,6 +290,21 @@ function updateIndicators(currentTime, duration){
     let comodin = (duration >= 3600) ? "00<span style='color: #e30052'>:</span>" : "";
 
     currentTimeIndicator.innerHTML = comodin + getReadableTime(currentTime);
+    rollerRightShadow = currentTime * headbandShadowProportion;
+    rollerLeftShadow = 55 - rollerRightShadow;
+
+    drawRollerShadow();
+    drawHeadband();
+
+    if(Math.floor(currentTime) <= 5){
+        let offset = (totalOffset / 2) - (currentTime * (totalOffset / 2) / 5);
+        headband.css({ strokeDashoffset: (offset >= 0) ? offset : 0 });
+    }
+
+    if(Math.floor(duration - currentTime) <= 5){
+        let offset = (totalOffset / 2) - ((duration - currentTime) * (totalOffset / 2) / 5);
+        headband.css({ strokeDashoffset: (offset >= 0) ? -offset : 0 });
+    }
 
     // Actualizar el porcentaje de avance
     progressValue.dispatchEvent(new CustomEvent('updateprogresssong', {
@@ -354,13 +373,9 @@ function onLoadPlayerData() {
 
     currentTimeIndicator.innerHTML = comodin + getReadableTime(0);
     lastTimeIndicator.innerHTML = getReadableTime(duration);
+    headbandShadowProportion = 55 / duration;
+    clearInterval(reverseInterval);
     isLoaded = true;
-    
-    if(isStarted && RadioCassette.mostrarTiempoGeneral != 1) {
-        setTimeout(function(){ 
-            //arm.style.transform = 'rotate('+agujaRotacion(Tocadiscos.aguja).inicio+'deg)'; 
-        }, 1500);
-    }
 }
 
 // Al iniciar la reproducción de la pista
@@ -408,6 +423,8 @@ function onPlayPlayer() {
     }
 
     btnPlay.classList.add("active");
+    rollerLeft.classList.add("active");
+    rollerRight.classList.add("active");
 }
 
 // Pausar la reproducción
@@ -474,6 +491,8 @@ function onEndedPlayerData() {
                 type: (typeof RadioCassette.canciones[songIndex].type == "undefined") ? false : true
             }
 
+            restartHeadband();
+
             setTimeout(() => {
                 setSource(currentSong.path, currentSong.type)
                     .then(() => player.play())
@@ -481,6 +500,35 @@ function onEndedPlayerData() {
             }, 2000);
         }
     }
+}
+
+function restartHeadband() {
+    rollerLeft.classList.add('reverse');
+    rollerRight.classList.add('reverse');
+    isReverse = true;
+
+    let _duration = 0,
+        _proportion = 55 / 250,
+        offset = Number(headband.css('stroke-dashoffset')),
+        offsetProportion = offset / 125;
+
+    reverseInterval = setInterval(() => {
+        if(_duration >= 250){
+            clearInterval(reverseInterval);
+            rollerLeft.classList.remove('reverse');
+            rollerRight.classList.remove('reverse');
+            isReverse = false;
+        }
+
+        _duration++;
+        offset -= offsetProportion;
+        rollerLeftShadow = _duration * _proportion;
+        rollerRightShadow = 55 - rollerLeftShadow;
+        headband.css({ strokeDashoffset: offset });
+
+        drawRollerShadow();
+        drawHeadband();
+    }, 1);
 }
 
 // Obtener el total de duración para el modo de mostrarTiempoTotal
@@ -601,11 +649,14 @@ function Clean() {
     player.duration = 0;
 
     currentTime = 0;
+    headbandShadowProportion = 0;
 
     currentTimeIndicator.innerHTML = getReadableTime(0);
     lastTimeIndicator.innerHTML = getReadableTime(0);
     progressValue.textContent = 0;
     progressBar.css({ width:  0});
+
+    clearInterval(reverseInterval);
 
     btnPlay.classList.remove("active");
     rollerLeft.classList.remove("active");
@@ -626,11 +677,20 @@ function _Audio() {
         songIndex = 0;
         acumulateTime = 0;
         currentTime = 0;
+        rollerLeftShadow = 55;
+        rollerRightShadow = 0;
+
+        clearInterval(reverseInterval);
+
         Clean();
+        drawHeadband();
+        drawRollerShadow();
 
         setTimeout(() => {
             currentTimeIndicator.innerHTML = getReadableTime(0);
             progressValue.textContent = "0";
+            rollerLeft.classList.remove("active");
+            rollerRight.classList.remove("active");
         }, 10);
     }
 
@@ -656,6 +716,18 @@ function getHadbandColor(value) {
     }
 }
 
+function getColorFromhadbandClass(value) {
+    switch(value) {
+        case 'hadbandcolor-black': return '#333333';
+            break;
+
+        case 'hadbandcolor-chocolate': return '#2E1503';
+            break;
+
+        default: return '';
+    }
+}
+
 function getRollerColor(value) {
     switch(value) {
         case 1: return 'rollercolor-red';
@@ -672,12 +744,8 @@ function getRollerColor(value) {
 }
 
 function drawHeadband() {
-    let [_width, _height] = $('.cassett').css(['width', 'height']).map(i => i.numberFromPx());
-
-    headbandContainer.setAttribute('viewBox', `0 0 ${_width} ${_height}`);
-
-    headband.setAttribute('d',
-        `
+    let [_width, _height] = $('.cassett').css(['width', 'height']).map(i => i.numberFromPx()),
+        _path = `
         M ${rollerLeft.css('left').numberFromPx() - rollerLeftShadow}, ${rollerLeft.css('top').numberFromPx() + (rollerLeft.offsetHeight / 2)}
 
         L ${ $('.roller-fixed-min-1').css('left').numberFromPx() }, ${ $('.roller-fixed-min-1').css('top').numberFromPx() + ($('.roller-fixed-min-1').offsetHeight / 2) + 2 }
@@ -693,8 +761,15 @@ function drawHeadband() {
         L ${ $('.roller-fixed-min-2').css('left').numberFromPx() + ($('.roller-fixed-min-2').offsetWidth) }, ${ $('.roller-fixed-min-2').css('top').numberFromPx() + ($('.roller-fixed-min-2').offsetHeight / 2) + 2 }
 
         L ${rollerRight.css('left').numberFromPx() + rollerRight.offsetWidth + rollerRightShadow}, ${rollerLeft.css('top').numberFromPx() + (rollerRight.offsetHeight / 2)}
-        `
-    );
+    `
+
+    headbandContainer.setAttribute('viewBox', `0 0 ${_width} ${_height}`);
+
+    headband.setAttribute('d', _path);
+    $('#headband-copy').setAttribute('d', _path);
+
+    totalOffset = headband.getTotalLength();
+    headband.css({ strokeDasharray: totalOffset });
 }
 
 function drawRollerShadow() {
@@ -722,6 +797,11 @@ window.on('load', () => {
     getTotalDurationForPlaylist();
     drawHeadband();
     drawRollerShadow();
+
+    totalOffset = headband.getTotalLength();
+    headband.css({ strokeDashoffset: (totalOffset / 2) });
+    headband.css({ strokeDasharray: totalOffset });
+
 
     window.on('resize', drawHeadband);
 

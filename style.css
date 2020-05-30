@@ -204,6 +204,9 @@ html, body{
 .roller-main.active{
     animation: roller-main-spin 3s linear infinite;
 }
+.roller-main.reverse{
+    animation: roller-main-reverse-spin .75s linear infinite;
+}
 .roller-main-left{ 
     top: calc(var(--cassette-scale) * 3.0169rem); 
     left: calc(var(--cassette-scale) * 2.15rem);
@@ -219,6 +222,15 @@ html, body{
     }
     100%{
         transform: rotate3d(0, 0, 1, 1turn);
+    }
+}
+
+@keyframes roller-main-reverse-spin{
+    0%{
+        transform: rotate3d(0, 0, -1, 0turn);
+    }
+    100%{
+        transform: rotate3d(0, 0, -1, 1turn);
     }
 }
 
