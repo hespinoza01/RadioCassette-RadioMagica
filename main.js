@@ -159,14 +159,16 @@ let currentSong = { index: -1, path: '' },
     currentTimeInterval = null,
     reverseInterval = null,
     songIndex = 0,
-    rollerLeftShadow = 60,
+    rollerLeftShadow = getShadowTam(),
     rollerRightShadow = 0,
     headbandShadowProportion = 0,
+    oldShadowTam = 0,
     isReverse = false,
     totalOffset = 0;
 
 // Arreglo con la lista de las canciones
 const SONGS = new Array(
+    {path: "./canciones/015.mp3", artist: "Danny Ocean", song: "Vuelve", duration: "03:39"},
     {path: "https://vk.com/doc297826490_503417139", artist: "Nacho", song: "Bailame", duration: "03:27"},
     {path: "./canciones/010.txt", artist: "Nacho", song: "Bailame", duration: "04:39"},
     {path: "./canciones/011.json", artist: "Nacho", song: "Bailame", duration: "04:47"},
@@ -218,6 +220,10 @@ const RadioCassette = {
     colorRodilloInferior2: '#055999', // Valor del color 2 del rodillo inferior en hexadecimal
     colorAlmohadilla: '#7F6E54', // Color de la almohadilla en hexadecimal
     colorMetalAlmohadilla: '#D14A00', // Color del metal de la almohadilla en hexadecimal
+    colorCassette: 'rgba(159, 159, 159, .09)', // Color de la caja del cassette, puede ser en valor hexadecimal, rgb o rgba
+    colorCassetteSuperior: 'rgba(159, 159, 159, .09)', // Color del rectangulo superior del cassette, puede ser en valor hexadecimal, rgb o rgba
+    colorTornillo: '#333333', // Color de los tornillos en valor hexadecimal
+    colorCruzTornillo: '#ffffff', // Color de la cruz dentro de los tornillos en hexadeciaml
 };
 
 
@@ -265,6 +271,8 @@ function getSecondsTime(duration) {
     return time;
 }
 
+function getShadowTam() { return Number(window.getComputedStyle(root).getPropertyValue('--shadow-tam')); }
+
 // carga el recurso de la pista, ya sea la direción del mp3 o el base64
 function setSource(source, type) {
     let isNotStream = RadioCassette.reproductorTipo !== ReproductorTipo.Stream,
@@ -305,7 +313,7 @@ function updateIndicators(currentTime, duration){
 
     currentTimeIndicator.innerHTML = comodin + getReadableTime(currentTime);
     rollerRightShadow = currentTime * headbandShadowProportion;
-    rollerLeftShadow = 60 - rollerRightShadow;
+    rollerLeftShadow = getShadowTam() - rollerRightShadow;
 
     drawRollerShadow();
     drawHeadband();
@@ -381,7 +389,7 @@ function onLoadPlayerData() {
 
     currentTimeIndicator.innerHTML = comodin + getReadableTime(0);
     lastTimeIndicator.innerHTML = getReadableTime(duration);
-    headbandShadowProportion = 60 / duration;
+    headbandShadowProportion = getShadowTam() / duration;
     clearInterval(reverseInterval);
     isLoaded = true;
 }
@@ -518,14 +526,14 @@ function restartHeadband() {
     let _duration = 0;
 
     animationEndSong();
-    rollerLeftShadow = 60;
+    rollerLeftShadow = getShadowTam();
     rollerRightShadow = 0;
 
     setTimeout(() => {
         animationStartSong(true);
         drawRollerShadow();
         rollerLeftShadow = 0;
-        rollerRightShadow = 60;
+        rollerRightShadow = getShadowTam();
 
         reverseInterval = setInterval(() => { 
             if(_duration >= 1000){
@@ -695,7 +703,7 @@ function _Audio() {
         songIndex = 0;
         acumulateTime = 0;
         currentTime = 0;
-        rollerLeftShadow = 60;
+        rollerLeftShadow = getShadowTam();
         rollerRightShadow = 0;
 
         headband.css({ strokeDashoffset: 0 });
@@ -829,9 +837,16 @@ window.on('load', () => {
     root.set('colorrodilloinferior1', RadioCassette.colorRodilloInferior1);
     root.set('colorrodilloinferior2', RadioCassette.colorRodilloInferior2);
 
+    root.set('colorcassette', RadioCassette.colorCassette);
+    root.set('colorcassettesuperior', RadioCassette.colorCassetteSuperior);
+
+    root.set('colortornillo', RadioCassette.colorTornillo);
+    root.set('colorcruztornillo', RadioCassette.colorCruzTornillo);
+
     RadioCassette.mostrarTiempoGeneral = (RadioCassette.reproductorTipo == ReproductorTipo.Stream) ? 1 : RadioCassette.mostrarTiempoGeneral;
 
     player = new _Audio();
+    oldShadowTam = getShadowTam();
 
     getTotalDurationForPlaylist();
     drawHeadband();
@@ -849,6 +864,16 @@ window.on('load', () => {
 
 
     window.on('resize', () => { 
+        if(oldShadowTam == 60 && getShadowTam() != 60){
+            rollerLeftShadow = (rollerLeftShadow != 0) ? (rollerLeftShadow * 75) / 60 : rollerLeftShadow;
+            rollerRightShadow = (rollerRightShadow != 0) ? (rollerRightShadow * 75) / 60 : rollerRightShadow;
+        }else if(oldShadowTam == 75 && getShadowTam() != 75){
+            rollerLeftShadow = (rollerLeftShadow != 0) ? (rollerLeftShadow * 60) / 75 : rollerLeftShadow;
+            rollerRightShadow = (rollerRightShadow != 0) ? (rollerRightShadow * 60) / 75 : rollerRightShadow;
+        }
+
+        oldShadowTam = getShadowTam();
+        drawRollerShadow();
         drawHeadband();
 
         root.set('transitioncinta', '0s');
