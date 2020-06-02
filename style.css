@@ -57,6 +57,27 @@
 
 :root{
     --cassette-scale: 3.2;
+
+    --coloralmohadilla: #7F6E54;
+    --colormetalalmohadilla: #D14A00;
+
+    --colorcinta: #713308;
+    --colorcintavacia1: gainsboro;
+    --colorcintavacia2: aqua;
+    --colorcintavacia3: gray;
+
+    --colorrodillosuperior: #C90025;
+    --colorrodilloinferior1: #119313;
+    --colorrodilloinferior2: #055999;
+
+    --cintaizquierda: 0;
+    --cintaderecha: 0;
+
+    --largocinta: 0;
+
+    --transitioncinta: 0s;
+    --transitioncintavacia1: 0s;
+    --transitioncintavacia2: 0s;
 }
 
 *, *:before, *:after{
@@ -131,16 +152,16 @@ html, body{
     left: 100%;
 }
 
-.top-box{
+/*.top-box{
     position: absolute;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
     width: calc(var(--cassette-scale) * 1.75rem);
     height: calc(var(--cassette-scale) * .65rem);
-    background-color: rgba(255, 255, 255, .75);
-    z-index: 98;
-}
+    background-color: rgba(255, 255, 255, .45);
+    z-index: 50;
+}*/
 
 .pad{
     display: block;
@@ -150,18 +171,30 @@ html, body{
     transform: translateX(-50%);
     width: calc(var(--cassette-scale) * .75rem);
     height: calc(var(--cassette-scale) * .3rem);
-    background-color: rgba(51, 51, 51, .95);
+    background-color: var(--coloralmohadilla);
     z-index: 97;
+}
+
+.steel-pad{
+    position: absolute;
+    top: calc(var(--cassette-scale) * .65rem - (var(--cassette-scale) * .22rem + 6px) + calc(var(--cassette-scale) * .3rem / 2));
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(var(--cassette-scale) * 2.5rem);
+    height: calc(var(--cassette-scale) * .5rem);
+    border-radius: 5px 5px 0 0;
+    border: 3px solid var(--colormetalalmohadilla);
+    border-bottom: none;
 }
 
 .screw{
     position: absolute;
     display: block;
-    width: .7rem;
-    height: .7rem;
+    width: .85rem;
+    height: .85rem;
     background-color: #333333;
     background-image: 
-        linear-gradient(180deg, transparent 48%, white 48%, white 52%, transparent 52%),
+        linear-gradient(180deg, transparent 46.5%, white 46.5%, white 54.5%, transparent 54.5%),
         linear-gradient(90deg, transparent 46%, white 46%, white 54%, transparent 54%);
     border-radius: 100%;
     box-shadow: inset 0 0 0 .15rem #333333;
@@ -171,49 +204,57 @@ html, body{
 .screw-2{ top: .3rem; right: .3rem; }
 .screw-3{ bottom: .3rem; right: .3rem; }
 .screw-4{ bottom: .3rem; left: .3rem; }
+.screw-5{
+    position: absolute;
+    top: calc(var(--cassette-scale) * .65rem );
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(var(--cassette-scale) * .5rem);
+    height: calc(var(--cassette-scale) * .5rem);
+    background-image: 
+        linear-gradient(180deg, transparent 46.5%, white 46.5%, white 54.5%, transparent 54.5%),
+        linear-gradient(90deg, transparent 47%, white 47%, white 53%, transparent 53%);
+}
 
 .roller-main{
-    --roller-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: absolute;
-    width: calc(var(--cassette-scale) * 1.4rem);
-    height: calc(var(--cassette-scale) * 1.4rem);
+    top: calc(var(--cassette-scale) * 2.7rem); 
+    width: calc(var(--cassette-scale) * 1.65rem);
+    height: calc(var(--cassette-scale) * 1.65rem);
     border-radius: 100%;
-    background: 
-        radial-gradient(circle, #f6f6f6 25%, transparent 25%, transparent 40%, var(--roller-color) 40%),
-        linear-gradient(85deg, transparent 46%, var(--roller-color) 46%, var(--roller-color) 53%, transparent 53%),
-        linear-gradient(20deg, transparent 46%, var(--roller-color) 46%, var(--roller-color) 53%, transparent 53%),
-        linear-gradient(145deg, transparent 47%, var(--roller-color) 46%, var(--roller-color) 53%, transparent 53%);
-    /*box-shadow: 0 0 0 45px currentColor;*/
+    background-image: radial-gradient(circle, transparent 38%, var(--colorrodilloinferior1) 38%);
     z-index: 95;
 }
-.roller-main.hadbandcolor-black{
-    color: #333333;
-}
-.roller-main.hadbandcolor-chocolate{
-    color: #2E1503;
-}
-.roller-main.rollercolor-red{
-    --roller-color: #F72725;
-}
-.roller-main.rollercolor-blue{
-    --roller-color: #4169e1;
-}
-.roller-main.rollercolor-yellow{
-    --roller-color: #FDD817;
+.roller-main:before{
+    content: '';
+    display: block;
+    width: calc(var(--cassette-scale) * 1.1rem);
+    height: calc(var(--cassette-scale) * 1.1rem);
+    background:
+        radial-gradient(circle, #f6f6f6 25%, transparent 25%, transparent 35%),
+        linear-gradient(90deg, transparent 46%, var(--colorrodilloinferior2) 46%, var(--colorrodilloinferior2) 53%, transparent 53%),
+        linear-gradient(150deg, transparent 46%, var(--colorrodilloinferior2) 46%, var(--colorrodilloinferior2) 53%, transparent 53%),
+        linear-gradient(30deg, transparent 46%, var(--colorrodilloinferior2) 46%, var(--colorrodilloinferior2) 53%, transparent 53%);
+    box-shadow: inset 0 0 0 11px var(--colorrodilloinferior2);
+    border-radius: 100%;
 }
 .roller-main.active{
     animation: roller-main-spin 3s linear infinite;
 }
 .roller-main.reverse{
-    animation: roller-main-reverse-spin .75s linear infinite;
+    animation: roller-main-reverse-spin 1s linear infinite;
+    transition: box-shadow 1s linear;
 }
 .roller-main-left{ 
-    top: calc(var(--cassette-scale) * 3.0169rem); 
     left: calc(var(--cassette-scale) * 2.15rem);
+    box-shadow: 0 0 0 var(--cintaizquierda) var(--colorcinta);
 }
-.roller-main-right{ 
-    top: calc(var(--cassette-scale) * 3.0169rem); 
+.roller-main-right{
     right: calc(var(--cassette-scale) * 2.15rem);
+    box-shadow: 0 0 0 var(--cintaderecha) var(--colorcinta);
 }
 
 @keyframes roller-main-spin{
@@ -227,10 +268,10 @@ html, body{
 
 @keyframes roller-main-reverse-spin{
     0%{
-        transform: rotate3d(0, 0, -1, 0turn);
+        transform: rotate3d(0, 0, -5, 0turn);
     }
     100%{
-        transform: rotate3d(0, 0, -1, 1turn);
+        transform: rotate3d(0, 0, -5, 1turn);
     }
 }
 
@@ -239,7 +280,7 @@ html, body{
     top: .5rem;
     width: calc(var(--cassette-scale) * .7rem);
     height: calc(var(--cassette-scale) * .7rem);
-    background-image: radial-gradient(circle, #f6f6f6 20%, #F72725 20%);
+    background-image: radial-gradient(circle, #f6f6f6 20%, var(--colorrodillosuperior) 20%);
     border-radius: 100%;
     z-index: 95;
 }
@@ -251,17 +292,6 @@ html, body{
     right: 1.5rem;
 }
 
-.roller-mini{
-    position: absolute;
-    top: calc(var(--cassette-scale) * .65rem);
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(var(--cassette-scale) * .5rem);
-    height: calc(var(--cassette-scale) * .5rem);
-    border-radius: 100%;
-    background-image: radial-gradient(circle, #f6f6f6 15%, rgba(51, 51, 51, .65) 15%);
-    z-index: 95;
-}
 
 .roller-fixed{
     position: absolute;
@@ -274,12 +304,12 @@ html, body{
 }
 
 .roller-fixed-2, .roller-fixed-3{
-    top: calc(var(--cassette-scale) * .55rem);
+    top: calc(var(--cassette-scale) * .48rem);
 }
-.roller-fixed-2{ left: calc(var(--cassette-scale) * 3.25rem); }
-.roller-fixed-3{ right: calc(var(--cassette-scale) * 3.25rem); }
+.roller-fixed-2{ left: calc(var(--cassette-scale) * 3.8rem); }
+.roller-fixed-3{ right: calc(var(--cassette-scale) * 3.8rem); }
 .roller-fixed-1, .roller-fixed-4{
-    top: calc(var(--cassette-scale) * .2rem);
+    top: calc(var(--cassette-scale) * .3rem);
 }
 .roller-fixed-1{ left: calc(var(--cassette-scale) * 2.25rem); }
 .roller-fixed-4{ right: calc(var(--cassette-scale) * 2.25rem); }
@@ -310,13 +340,21 @@ html, body{
     z-index: -100;
 }
 .headband{
-    stroke-width: 2;
+    stroke-width: 2.5;
+    stroke: var(--colorcinta);
+    stroke-dasharray: var(--largocinta);
+    transition: stroke-dashoffset var(--transitioncinta) linear;
 }
-.headband.hadbandcolor-black{
-    stroke: #333333;
+#headband-copy{
+    stroke: var(--colorcintavacia1);
 }
-.headband.hadbandcolor-chocolate{
-    stroke: #2E1503;
+#headband-copy2{
+    stroke: var(--colorcintavacia2);
+    transition: stroke-dashoffset var(--transitioncintavacia2) linear;
+}
+#headband-copy3{ 
+    stroke: var(--colorcintavacia3);
+    transition: stroke-dashoffset var(--transitioncintavacia1) linear;
 }
 
 
@@ -581,5 +619,9 @@ svg rect {
 
     .time{
         font-size: 1rem;
+    }
+
+    .roller-main:before{
+        box-shadow: inset 0 0 0 7px var(--colorrodilloinferior2);
     }
 }

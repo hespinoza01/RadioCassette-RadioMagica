@@ -123,6 +123,12 @@ Array.prototype.equalsTo = function(array) {
     return true;
 }
 
+const root = document.documentElement;
+
+root.set = function(_property, _value) {
+    this.style.setProperty(`--${_property}`, _value);
+}
+
 // Declaraciones
 const titleImage = $('#title-image'),
     titleText = $('#title-text'),
@@ -153,7 +159,7 @@ let currentSong = { index: -1, path: '' },
     currentTimeInterval = null,
     reverseInterval = null,
     songIndex = 0,
-    rollerLeftShadow = 55,
+    rollerLeftShadow = 60,
     rollerRightShadow = 0,
     headbandShadowProportion = 0,
     isReverse = false,
@@ -195,7 +201,7 @@ const RadioCassette = {
     reproductorTipo: 1, // Tipo de reproductor 1=lista, 2=radio
     canciones: SONGS, // Lista de canciones a reproducir para la opción 1 de 'reproductorTipo' o la dirección para la opción 2 de 'reproductorTipo'
     url: 'https://icecast.teveo.cu/b3jbfThq',//'http://198.27.83.198:5140/stream', // URL de la radio
-    mostrarTiempoGeneral: 0, // Mostrar tiempo general de la reproducción, 1=sí, 0=no
+    mostrarTiempoGeneral: 1, // Mostrar tiempo general de la reproducción, 1=sí, 0=no
     valorTiempoGeneral: "01:01:00", // Tiempo de duración en segundos para el tipo de reproducción general, 1 hora = 3600 segundos
     estiloReproduccion: 1, // Tipo de reproducción 1=inicio a fin, 2=inicio a fin y repetir, 3=revolver lista, 4=sattolo
     tiempoFinal: 1, // Tipo de tiempo final 1=timepo total, 2=tiempo restante
@@ -203,9 +209,17 @@ const RadioCassette = {
     textoTitulo: 'Radio Maracaibo', // Texto a mostrar como título de la emisora
     imagenEslogan: 'https://i.pinimg.com/originals/83/81/17/8381171693f7fedc6b6411c39f15f9fb.jpg', // url de la imagen a mostrar detrás del texto del eslogan de la emisora
     textoEslogan: 'la radio alegre', // Texto a mostrar como eslogan de la emisora
-    colorCinta: 1, // Estilo del color de la cinta 1=negro, 2=chocolate
-    colorRodo: 1, // Estilo del color de los rodos 1=rojo, 2=azul, 3=amarillo
+    colorCinta: '#713308', // Valor del color de la cinta en hexadecimal
+    colorCintaVacia1: '#ededed', // Valor del color 1 de la cinta vacia en hexadecimal
+    colorCintaVacia2: '#00FFFF', // Valor del color 2 de la cinta vacia en hexadecimal
+    colorCintaVacia3: '#BABABA', // Valor del color 3 de la cinta vacia en hexadecimal
+    colorRodilloSuperior: '#C90025', // Valor del color del rodillo superior en hexadecimal
+    colorRodilloInferior1: '#119313', // Valor del color 1 del rodillo inferior en hexadecimal
+    colorRodilloInferior2: '#055999', // Valor del color 2 del rodillo inferior en hexadecimal
+    colorAlmohadilla: '#7F6E54', // Color de la almohadilla en hexadecimal
+    colorMetalAlmohadilla: '#D14A00', // Color del metal de la almohadilla en hexadecimal
 };
+
 
 /*
 *    Eventos
@@ -291,19 +305,13 @@ function updateIndicators(currentTime, duration){
 
     currentTimeIndicator.innerHTML = comodin + getReadableTime(currentTime);
     rollerRightShadow = currentTime * headbandShadowProportion;
-    rollerLeftShadow = 55 - rollerRightShadow;
+    rollerLeftShadow = 60 - rollerRightShadow;
 
     drawRollerShadow();
     drawHeadband();
 
     if(Math.floor(currentTime) <= 5){
-        let offset = (totalOffset / 2) - (currentTime * (totalOffset / 2) / 5);
-        headband.css({ strokeDashoffset: (offset >= 0) ? offset : 0 });
-    }
-
-    if(Math.floor(duration - currentTime) <= 5){
-        let offset = (totalOffset / 2) - ((duration - currentTime) * (totalOffset / 2) / 5);
-        headband.css({ strokeDashoffset: (offset >= 0) ? -offset : 0 });
+        animationStartSong();
     }
 
     // Actualizar el porcentaje de avance
@@ -373,7 +381,7 @@ function onLoadPlayerData() {
 
     currentTimeIndicator.innerHTML = comodin + getReadableTime(0);
     lastTimeIndicator.innerHTML = getReadableTime(duration);
-    headbandShadowProportion = 55 / duration;
+    headbandShadowProportion = 60 / duration;
     clearInterval(reverseInterval);
     isLoaded = true;
 }
@@ -434,7 +442,7 @@ function onPausePlayer() {
 
 // Al finalizar la pista actual
 function onEndedPlayerData() {
-    let timeOutValue = 2000,
+    let timeOutValue = 3000,
         oldTime = currentTime;
 
     Clean();
@@ -491,13 +499,13 @@ function onEndedPlayerData() {
                 type: (typeof RadioCassette.canciones[songIndex].type == "undefined") ? false : true
             }
 
-            restartHeadband();
+            if(RadioCassette.mostrarTiempoGeneral !== 1) restartHeadband();
 
             setTimeout(() => {
                 setSource(currentSong.path, currentSong.type)
                     .then(() => player.play())
                     .catch(() => console.error("Error on load source: ", currentSong.path));
-            }, 2000);
+            }, timeOutValue);
         }
     }
 }
@@ -507,28 +515,35 @@ function restartHeadband() {
     rollerRight.classList.add('reverse');
     isReverse = true;
 
-    let _duration = 0,
-        _proportion = 55 / 250,
-        offset = Number(headband.css('stroke-dashoffset')),
-        offsetProportion = offset / 125;
+    let _duration = 0;
 
-    reverseInterval = setInterval(() => {
-        if(_duration >= 250){
-            clearInterval(reverseInterval);
+    animationEndSong();
+    rollerLeftShadow = 60;
+    rollerRightShadow = 0;
+
+    setTimeout(() => {
+        animationStartSong(true);
+        drawRollerShadow();
+        rollerLeftShadow = 0;
+        rollerRightShadow = 60;
+
+        reverseInterval = setInterval(() => { 
+            if(_duration >= 1000){
+                clearInterval(reverseInterval);
+            }
+
+            _duration+=10;
+            rollerLeftShadow+=0.6;
+            rollerRightShadow-=0.6;
+            drawHeadband(); 
+        }, 10);
+
+        setTimeout(() => {
             rollerLeft.classList.remove('reverse');
             rollerRight.classList.remove('reverse');
             isReverse = false;
-        }
-
-        _duration++;
-        offset -= offsetProportion;
-        rollerLeftShadow = _duration * _proportion;
-        rollerRightShadow = 55 - rollerLeftShadow;
-        headband.css({ strokeDashoffset: offset });
-
-        drawRollerShadow();
-        drawHeadband();
-    }, 1);
+        }, 1000);
+    }, 2000);
 }
 
 // Obtener el total de duración para el modo de mostrarTiempoTotal
@@ -656,6 +671,9 @@ function Clean() {
     progressValue.textContent = 0;
     progressBar.css({ width:  0});
 
+    $('#headband-copy3').css('transition-delay', '');
+    $('#headband-copy2').css('transition-delay', '');
+
     clearInterval(reverseInterval);
 
     btnPlay.classList.remove("active");
@@ -677,8 +695,13 @@ function _Audio() {
         songIndex = 0;
         acumulateTime = 0;
         currentTime = 0;
-        rollerLeftShadow = 55;
+        rollerLeftShadow = 60;
         rollerRightShadow = 0;
+
+        headband.css({ strokeDashoffset: 0 });
+        $('#headband-copy3').css({strokeDashoffset: 0});
+        $('#headband-copy2').css({strokeDashoffset: 0});
+        console.log(totalOffset)
 
         clearInterval(reverseInterval);
 
@@ -691,6 +714,20 @@ function _Audio() {
             progressValue.textContent = "0";
             rollerLeft.classList.remove("active");
             rollerRight.classList.remove("active");
+
+            root.set('transitioncinta', '0s');
+            root.set('transitioncintavacia1', '0s');
+            root.set('transitioncintavacia2', '0s');
+
+            headband.css({ strokeDashoffset: totalOffset });
+            $('#headband-copy3').css({strokeDashoffset: totalOffset * 0.45});
+            $('#headband-copy2').css({strokeDashoffset: totalOffset * 0.16});
+
+            setTimeout(() => {
+                root.set('transitioncinta', '5s');
+                root.set('transitioncintavacia1', '2.8s');
+                root.set('transitioncintavacia2', '1.5s');
+            }, 100);
         }, 10);
     }
 
@@ -702,45 +739,6 @@ function _Audio() {
         .on("ended", onEndedPlayerData);
 
     return _audio;
-}
-
-function getHadbandColor(value) {
-    switch(value) {
-        case 1: return 'hadbandcolor-black';
-            break;
-
-        case 2: return 'hadbandcolor-chocolate';
-            break;
-
-        default: return '';
-    }
-}
-
-function getColorFromhadbandClass(value) {
-    switch(value) {
-        case 'hadbandcolor-black': return '#333333';
-            break;
-
-        case 'hadbandcolor-chocolate': return '#2E1503';
-            break;
-
-        default: return '';
-    }
-}
-
-function getRollerColor(value) {
-    switch(value) {
-        case 1: return 'rollercolor-red';
-            break;
-
-        case 2: return 'rollercolor-blue';
-            break;
-
-        case 3: return 'rollercolor-yellow';
-            break;
-
-        default: return '';
-    }
 }
 
 function drawHeadband() {
@@ -766,15 +764,47 @@ function drawHeadband() {
     headbandContainer.setAttribute('viewBox', `0 0 ${_width} ${_height}`);
 
     headband.setAttribute('d', _path);
-    $('#headband-copy').setAttribute('d', _path);
+    $('.headband-copy').forEach(node => node.setAttribute('d', _path));
 
     totalOffset = headband.getTotalLength();
-    headband.css({ strokeDasharray: totalOffset });
+    root.set('largocinta', totalOffset);
 }
 
 function drawRollerShadow() {
-    rollerLeft.css({ boxShadow: `0 0 0 ${rollerLeftShadow}px currentColor` });
-    rollerRight.css({ boxShadow: `0 0 0 ${rollerRightShadow}px currentColor` });
+    root.set('cintaizquierda', `${rollerLeftShadow}px`);
+    root.set('cintaderecha', `${rollerRightShadow}px`);
+}
+
+function animationStartSong(reverse=false) {
+    if(!reverse){
+        root.set('transitioncinta', '5s');
+        root.set('transitioncintavacia1', '2.8s');
+        root.set('transitioncintavacia2', '1.5s');
+
+        headband.css({strokeDashoffset: 0});
+        $('#headband-copy3').css({strokeDashoffset: 0});
+        $('#headband-copy2').css({strokeDashoffset: 0});
+    }else{
+        root.set('transitioncinta', '1s');
+        root.set('transitioncintavacia1', '.56s');
+        root.set('transitioncintavacia2', '.3s');
+
+        headband.css({ strokeDashoffset: totalOffset - 5 });
+        $('#headband-copy3').css({strokeDashoffset: totalOffset * 0.45});
+        $('#headband-copy2').css({strokeDashoffset: totalOffset * 0.16});
+    }
+}
+
+function animationEndSong() {
+    root.set('transitioncinta', '1s');
+    root.set('transitioncintavacia1', '.68s');
+    root.set('transitioncintavacia2', '.3s');
+    $('#headband-copy3').css('transition-delay', '.5s');
+    $('#headband-copy2').css('transition-delay', '.8s');
+
+    headband.css({ strokeDashoffset: -totalOffset });
+    $('#headband-copy3').css({strokeDashoffset: -(totalOffset * 0.45)});
+    $('#headband-copy2').css({strokeDashoffset: -(totalOffset * 0.16)});
 }
 
 
@@ -786,9 +816,17 @@ window.on('load', () => {
     sloganText.textContent = RadioCassette.textoEslogan;
     sloganImage.src = RadioCassette.imagenEslogan;
 
-    $('.hadbandcolor').forEach(node => node.classList.add(getHadbandColor(RadioCassette.colorCinta)));
-    headband.classList.add(getHadbandColor(RadioCassette.colorCinta));
-    $('.rollercolor').forEach(node => node.classList.add(getRollerColor(RadioCassette.colorRodo)));
+    root.set('coloralmohadilla', RadioCassette.colorAlmohadilla);
+    root.set('colormetalalmohadilla', RadioCassette.colorMetalAlmohadilla);
+
+    root.set('colorcinta', RadioCassette.colorCinta);
+    root.set('colorcintavacia1', RadioCassette.colorCintaVacia1);
+    root.set('colorcintavacia2', RadioCassette.colorCintaVacia2);
+    root.set('colorcintavacia3', RadioCassette.colorCintaVacia3);
+
+    root.set('colorrodillosuperior', RadioCassette.colorRodilloSuperior);
+    root.set('colorrodilloinferior1', RadioCassette.colorRodilloInferior1);
+    root.set('colorrodilloinferior2', RadioCassette.colorRodilloInferior2);
 
     RadioCassette.mostrarTiempoGeneral = (RadioCassette.reproductorTipo == ReproductorTipo.Stream) ? 1 : RadioCassette.mostrarTiempoGeneral;
 
@@ -799,11 +837,33 @@ window.on('load', () => {
     drawRollerShadow();
 
     totalOffset = headband.getTotalLength();
-    headband.css({ strokeDashoffset: (totalOffset / 2) });
-    headband.css({ strokeDasharray: totalOffset });
+    headband.css({ strokeDashoffset: totalOffset });
+    $('#headband-copy3').css({strokeDashoffset: totalOffset * 0.45});
+    $('#headband-copy2').css({strokeDashoffset: totalOffset * 0.16});
+    setTimeout(() => {
+        root.set('transitioncinta', '5s');
+        root.set('transitioncintavacia1', '2.8s');
+        root.set('transitioncintavacia2', '1.5s');
+    }, 100);
 
 
-    window.on('resize', drawHeadband);
+    window.on('resize', () => { 
+        drawHeadband();
+
+        root.set('transitioncinta', '0s');
+        root.set('transitioncintavacia1', '0s');
+        root.set('transitioncintavacia2', '0s');
+
+        headband.css({ strokeDashoffset: totalOffset });
+        $('#headband-copy3').css({strokeDashoffset: totalOffset * 0.45});
+        $('#headband-copy2').css({strokeDashoffset: totalOffset * 0.16});
+
+        setTimeout(() => {
+            root.set('transitioncinta', '5s');
+            root.set('transitioncintavacia1', '2.8s');
+            root.set('transitioncintavacia2', '1.5s');
+        }, 100);
+    });
 
     btnPlay.on('click', onClickBtnStart);
     btnPause.on('click', onCLickBtnPause);
