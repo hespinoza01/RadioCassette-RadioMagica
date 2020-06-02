@@ -198,13 +198,13 @@ const ReproductorTipo = {
     };
 
 const RadioCassette = {
-    reproductorTipo: 1, // Tipo de reproductor 1=lista, 2=radio
+    reproductorTipo: 2, // Tipo de reproductor 1=lista, 2=radio
     canciones: SONGS, // Lista de canciones a reproducir para la opción 1 de 'reproductorTipo' o la dirección para la opción 2 de 'reproductorTipo'
     url: 'https://icecast.teveo.cu/b3jbfThq',//'http://198.27.83.198:5140/stream', // URL de la radio
     mostrarTiempoGeneral: 1, // Mostrar tiempo general de la reproducción, 1=sí, 0=no
-    valorTiempoGeneral: "01:01:00", // Tiempo de duración en segundos para el tipo de reproducción general, 1 hora = 3600 segundos
+    valorTiempoGeneral: "01:01:10", // Tiempo de duración en segundos para el tipo de reproducción general, 1 hora = 3600 segundos
     estiloReproduccion: 1, // Tipo de reproducción 1=inicio a fin, 2=inicio a fin y repetir, 3=revolver lista, 4=sattolo
-    tiempoFinal: 1, // Tipo de tiempo final 1=timepo total, 2=tiempo restante
+    tiempoFinal: 2, // Tipo de tiempo final 1=timepo total, 2=tiempo restante
     imagenTitulo: 'https://i.pinimg.com/originals/83/81/17/8381171693f7fedc6b6411c39f15f9fb.jpg', // url de la imagen a mostrar detrás del texto del título de la emisora
     textoTitulo: 'Radio Maracaibo', // Texto a mostrar como título de la emisora
     imagenEslogan: 'https://i.pinimg.com/originals/83/81/17/8381171693f7fedc6b6411c39f15f9fb.jpg', // url de la imagen a mostrar detrás del texto del eslogan de la emisora
@@ -353,7 +353,7 @@ function onCurrentTimeInterval() {
             
             setTimeout(() => onClickBtnStop(), 500);
 
-            setTimeout(() => { setSource(RadioCassette.url).then(() => player.play()) }, 1500);
+            setTimeout(() => { setSource(RadioCassette.url).then(() => onClickBtnStart()) }, 2000);
         }
     }
    
@@ -704,6 +704,7 @@ function _Audio() {
         console.log(totalOffset)
 
         clearInterval(reverseInterval);
+        clearInterval(currentTimeInterval);
 
         Clean();
         drawHeadband();
