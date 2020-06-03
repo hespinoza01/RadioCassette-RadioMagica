@@ -1,5 +1,5 @@
 // Utilidades
-// Node Selector based in JQuery
+// Selector de elementos html inspirado en JQuery
 window.$ = function(selector = document.body){
   let result;
 
@@ -22,7 +22,7 @@ window.$ = function(selector = document.body){
   return result;
 };
 
-// shorthand to addEventListener
+// acortador a la funcción addEventListener
 window.Node.prototype.on = function(eventType, callback){
   if(eventType === undefined || typeof eventType !== "string") return;
   if(callback === undefined || typeof callback !== "function") return;
@@ -32,7 +32,7 @@ window.Node.prototype.on = function(eventType, callback){
 };
 window.on = window.Node.prototype.on;
 
-// shorthand to style.[propertyName] and modify styles
+// acortador para el  style.[propertyName] y así modificar los estilos de los elementos
 window.Node.prototype.css = function(arg){
   if(Object.prototype.toString.call(arg) === '[object Array]'){
     let result = [];
@@ -168,7 +168,6 @@ let currentSong = { index: -1, path: '' },
 
 // Arreglo con la lista de las canciones
 const SONGS = new Array(
-    {path: "./canciones/015.mp3", artist: "Danny Ocean", song: "Vuelve", duration: "03:39"},
     {path: "https://vk.com/doc297826490_503417139", artist: "Nacho", song: "Bailame", duration: "03:27"},
     {path: "./canciones/010.txt", artist: "Nacho", song: "Bailame", duration: "04:39"},
     {path: "./canciones/011.json", artist: "Nacho", song: "Bailame", duration: "04:47"},
@@ -200,7 +199,7 @@ const ReproductorTipo = {
     };
 
 const RadioCassette = {
-    reproductorTipo: 2, // Tipo de reproductor 1=lista, 2=radio
+    reproductorTipo: 1, // Tipo de reproductor 1=lista, 2=radio
     canciones: SONGS, // Lista de canciones a reproducir para la opción 1 de 'reproductorTipo' o la dirección para la opción 2 de 'reproductorTipo'
     url: 'https://icecast.teveo.cu/b3jbfThq',//'http://198.27.83.198:5140/stream', // URL de la radio
     mostrarTiempoGeneral: 1, // Mostrar tiempo general de la reproducción, 1=sí, 0=no
@@ -308,6 +307,7 @@ function setSource(source, type) {
     });
 }
 
+// Actualiza los diferentes indicadores: el tiempo transcurrido, el tiempo faltante, la barra de progreso, avanze da la cinta
 function updateIndicators(currentTime, duration){
     let comodin = (duration >= 3600) ? "00<span style='color: #e30052'>:</span>" : "";
 
@@ -315,9 +315,11 @@ function updateIndicators(currentTime, duration){
     rollerRightShadow = currentTime * headbandShadowProportion;
     rollerLeftShadow = getShadowTam() - rollerRightShadow;
 
+    // Redibujar el rodo de la cinta y el recorrido de la misma
     drawRollerShadow();
     drawHeadband();
 
+    // Si es el inico de la canción se inicia la animación de inicio de la cinta
     if(Math.floor(currentTime) <= 5){
         animationStartSong();
     }
@@ -331,13 +333,11 @@ function updateIndicators(currentTime, duration){
 
     // Para actualizar el tiempo restante si está habilitado
     if(RadioCassette.tiempoFinal == TiempoFinal.TiempoRestante){
-        let durationTotal = (RadioCassette.reproductorTipo === ReproductorTipo.Playlist) ? player.duration : getSecondsTime(RadioCassette.valorTiempoGeneral);
-        
         lastTimeIndicator.dispatchEvent(
             new CustomEvent('updateTiempoRestante', {
                 detail: {
-                    duration: durationTotal - currentTime,
-                    total: durationTotal
+                    duration: duration - currentTime,
+                    total: duration
                 },
                 bubbles: true,
                 cancelable: true
@@ -367,7 +367,7 @@ function onCurrentTimeInterval() {
    
     //currentTime++;
     //console.log(currentTime, player.currentTime);
-    if(currentTime < duration) {
+    if((currentTime < duration) && !player.change) {
         //currentTime++;
         updateIndicators(currentTime, duration);
     }
@@ -387,11 +387,12 @@ function onLoadPlayerData() {
     
     let comodin = (duration >= 3600) ? "00<span style='color: #e30052'>:</span>" : "";
 
-    currentTimeIndicator.innerHTML = comodin + getReadableTime(0);
+    if(!player.change) currentTimeIndicator.innerHTML = comodin + getReadableTime(0);
     lastTimeIndicator.innerHTML = getReadableTime(duration);
     headbandShadowProportion = getShadowTam() / duration;
     clearInterval(reverseInterval);
     isLoaded = true;
+    player.change = false;
 }
 
 // Al iniciar la reproducción de la pista
@@ -450,15 +451,14 @@ function onPausePlayer() {
 
 // Al finalizar la pista actual
 function onEndedPlayerData() {
-    let timeOutValue = 3000,
-        oldTime = currentTime;
+    let timeOutValue = 3000;
 
     Clean();
 
-    if(RadioCassette.mostrarTiempoGeneral == 1 && !player.isStop){
+    if(RadioCassette.mostrarTiempoGeneral == 1 && !player.change){
         timeOutValue = 0;
-        currentTime = oldTime;
         acumulateTime += player.duration;
+        currentTime = acumulateTime;
         currentTimeIndicator.innerHTML = getReadableTime(currentTime);
         lastTimeIndicator.innerHTML = getReadableTime(RadioCassette.valorTiempoGeneral);
     }
@@ -518,6 +518,7 @@ function onEndedPlayerData() {
     }
 }
 
+// Reiniciar el recorrido de la cinta
 function restartHeadband() {
     rollerLeft.classList.add('reverse');
     rollerRight.classList.add('reverse');
@@ -604,25 +605,20 @@ function onCLickBtnPause() {
 
 // Presionar el botón de retroceder
 function onClickBtnBack() {
+    let duration = (RadioCassette.mostrarTiempoGeneral == 1) ? getSecondsTime(RadioCassette.valorTiempoGeneral) : player.duration;
+
     if(RadioCassette.reproductorTipo !== ReproductorTipo.Stream){
         songIndex = (songIndex - 1 <= 0) ? 0 : (songIndex - 1);
 
         player.pause();
+        player.change = true;
 
         if(songIndex === 0){
             onClickBtnStop();
             setTimeout(onClickBtnStart, 100);
         }else{
-            oldTime = currentTime - player.currentTime;
-
-            Clean();
-
-            if(RadioCassette.mostrarTiempoGeneral == 1){
-                currentTime = oldTime;
-                acumulateTime -= player.duration;
-                currentTimeIndicator.innerHTML = getReadableTime(currentTime);
-                lastTimeIndicator.innerHTML = getReadableTime(RadioCassette.valorTiempoGeneral);
-            }
+            acumulateTime -= getSecondsTime(RadioCassette.canciones[songIndex].duration) + 1;
+            currentTime = (acumulateTime >= 0) ? acumulateTime : 0;
 
             // Valores de la canción actual en reproducción
             currentSong = {
@@ -630,6 +626,10 @@ function onClickBtnBack() {
                 path: RadioCassette.canciones[songIndex].path,
                 type: (typeof RadioCassette.canciones[songIndex].type == "undefined") ? false : true
             };
+
+            if(RadioCassette.mostrarTiempoGeneral == 1){
+                updateIndicators(currentTime, duration);
+            }
 
             setSource(currentSong.path, currentSong.type)
                 .then(() => player.play())
@@ -640,8 +640,65 @@ function onClickBtnBack() {
 
 // Presionar el botón de avanzar
 function onClickBtnForward() {
-    if(RadioCassette.reproductorTipo !== ReproductorTipo.Stream){
-        player.currentTime = player.duration;
+    let playlistLength = RadioCassette.canciones.length;
+    let duration = (RadioCassette.mostrarTiempoGeneral == 1) ? getSecondsTime(RadioCassette.valorTiempoGeneral) : player.duration;
+
+    // Al reproducir por lista de canciones
+    if(RadioCassette.reproductorTipo == ReproductorTipo.Playlist) {
+        clearInterval(currentTimeInterval);
+        player.pause();
+
+        acumulateTime+= player.duration;
+        currentTime = acumulateTime;
+        player.change = true;
+
+        if(songIndex == playlistLength && EstiloReproduccion.Linear){
+            return;
+        }
+
+        // Si esta en modo LinearLoop o Shuffle, reinicia la reproducción de la lista al inicio
+        if(RadioCassette.estiloReproduccion != EstiloReproduccion.Linear){
+            let shuffleCheck = [EstiloReproduccion.Shuffle, EstiloReproduccion.Sattolo];
+            songIndex = (songIndex + 1 == playlistLength) ? -1 : songIndex;
+
+            if(songIndex == -1 && shuffleCheck.indexOf(RadioCassette.estiloReproduccion) !== -1){
+                oldShuffleSongs = RadioCassette.canciones.copy();
+
+                let lastSOngFromOldList = oldShuffleSongs[oldShuffleSongs.length - 1];
+
+                do{
+                    if(RadioCassette.estiloReproduccion === EstiloReproduccion.Shuffle){
+                        RadioCassette.canciones.shuffle();
+                    }else{
+                        RadioCassette.canciones = oldShuffleSongs.copy();
+                        RadioCassette.canciones.sattolo();
+                    }
+                }while(RadioCassette.canciones[0] === lastSOngFromOldList);
+
+                console.log("----- Lista Antigua -----");
+                console.log(oldShuffleSongs);
+                console.log("----- Lista Nueva -----");
+                console.log(RadioCassette.canciones);
+            }
+        }
+
+        if(RadioCassette.mostrarTiempoGeneral == 1){
+            updateIndicators(currentTime, duration);
+        }
+
+        // Se obtiene los valores de la siguiente canción
+        if(songIndex < playlistLength - 1){
+            songIndex++;
+            currentSong = {
+                index: songIndex,
+                path: RadioCassette.canciones[songIndex].path,
+                type: (typeof RadioCassette.canciones[songIndex].type == "undefined") ? false : true
+            }
+
+            setSource(currentSong.path, currentSong.type)
+                .then(() => player.play())
+                .catch(() => console.error("Error on load source: ", currentSong.path));
+        }
     }
 }
 
@@ -676,6 +733,7 @@ function Clean() {
 
     currentTimeIndicator.innerHTML = getReadableTime(0);
     lastTimeIndicator.innerHTML = getReadableTime(0);
+
     progressValue.textContent = 0;
     progressBar.css({ width:  0});
 
@@ -697,6 +755,7 @@ function _Audio() {
     _audio.songIndex = -1;
     // Detener la reproducción
     _audio.isStop = true;
+    _audio.change  = false;
     _audio.stop =function() {
         this.isStop = true;
         isStarted = false;
@@ -709,7 +768,6 @@ function _Audio() {
         headband.css({ strokeDashoffset: 0 });
         $('#headband-copy3').css({strokeDashoffset: 0});
         $('#headband-copy2').css({strokeDashoffset: 0});
-        console.log(totalOffset)
 
         clearInterval(reverseInterval);
         clearInterval(currentTimeInterval);
@@ -720,6 +778,7 @@ function _Audio() {
 
         setTimeout(() => {
             currentTimeIndicator.innerHTML = getReadableTime(0);
+            lastTimeIndicator.innerHTML = getReadableTime(0);
             progressValue.textContent = "0";
             rollerLeft.classList.remove("active");
             rollerRight.classList.remove("active");
@@ -750,6 +809,7 @@ function _Audio() {
     return _audio;
 }
 
+// Dibujar el recorrido de la cinta
 function drawHeadband() {
     let [_width, _height] = $('.cassett').css(['width', 'height']).map(i => i.numberFromPx()),
         _path = `
@@ -779,11 +839,13 @@ function drawHeadband() {
     root.set('largocinta', totalOffset);
 }
 
+// Dibujar cinta contenido en los rodillos inferiores
 function drawRollerShadow() {
     root.set('cintaizquierda', `${rollerLeftShadow}px`);
     root.set('cintaderecha', `${rollerRightShadow}px`);
 }
 
+// Función para la animación del recorrido de la cinta en el inicio de la canción
 function animationStartSong(reverse=false) {
     if(!reverse){
         root.set('transitioncinta', '5s');
@@ -804,6 +866,7 @@ function animationStartSong(reverse=false) {
     }
 }
 
+// Función para la animación del recorrido de la cinta al final de la canción
 function animationEndSong() {
     root.set('transitioncinta', '1s');
     root.set('transitioncintavacia1', '.68s');
@@ -825,6 +888,7 @@ window.on('load', () => {
     sloganText.textContent = RadioCassette.textoEslogan;
     sloganImage.src = RadioCassette.imagenEslogan;
 
+    // Se establecen los colores de cada uno de los componentes del cassette
     root.set('coloralmohadilla', RadioCassette.colorAlmohadilla);
     root.set('colormetalalmohadilla', RadioCassette.colorMetalAlmohadilla);
 
