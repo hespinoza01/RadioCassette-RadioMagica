@@ -551,7 +551,6 @@ svg rect {
 }
 
 .mask-title {
-    -webkit-mask: url(#mask-title);
     mask: url(#mask-title);
     width: 100%;
     height: 100%;
@@ -577,7 +576,6 @@ svg rect {
 }
 
 .mask-slogan{
-    -webkit-mask: url(#mask-slogan);
     mask: url(#mask-slogan);
     width: 100%;
     height: 100%;

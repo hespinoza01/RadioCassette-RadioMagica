@@ -460,14 +460,21 @@ function onEndedPlayerData() {
         acumulateTime += player.duration;
         currentTime = acumulateTime;
         currentTimeIndicator.innerHTML = getReadableTime(currentTime);
-        lastTimeIndicator.innerHTML = getReadableTime(RadioCassette.valorTiempoGeneral);
+
+        if(RadioCassette.tiempoFinal == 1){
+            lastTimeIndicator.innerHTML = getReadableTime(RadioCassette.valorTiempoGeneral);
+        }
+        else{
+            let value = getSecondsTime(RadioCassette.valorTiempoGeneral) - currentTime;
+            lastTimeIndicator.innerHTML = getReadableTime(value);
+        }
     }
     
     let playlistLength = RadioCassette.canciones.length;
 
     // Al reproducir por lista de canciones
     if(RadioCassette.reproductorTipo == ReproductorTipo.Playlist) {
-        if(songIndex == playlistLength && EstiloReproduccion.Linear){
+        if(songIndex + 1 == playlistLength && EstiloReproduccion.Linear){
             onClickBtnStop();
             return;
         }
@@ -644,50 +651,20 @@ function onClickBtnForward() {
     let duration = (RadioCassette.mostrarTiempoGeneral == 1) ? getSecondsTime(RadioCassette.valorTiempoGeneral) : player.duration;
 
     // Al reproducir por lista de canciones
-    if(RadioCassette.reproductorTipo == ReproductorTipo.Playlist) {
+    if(RadioCassette.reproductorTipo == ReproductorTipo.Playlist && isLoaded) {
         clearInterval(currentTimeInterval);
         player.pause();
 
-        acumulateTime+= player.duration;
-        currentTime = acumulateTime;
-        player.change = true;
+        if(songIndex < playlistLength - 1) {
+            acumulateTime+= player.duration;
+            currentTime = acumulateTime;
+            player.change = true;
 
-        if(songIndex == playlistLength && EstiloReproduccion.Linear){
-            return;
-        }
-
-        // Si esta en modo LinearLoop o Shuffle, reinicia la reproducción de la lista al inicio
-        if(RadioCassette.estiloReproduccion != EstiloReproduccion.Linear){
-            let shuffleCheck = [EstiloReproduccion.Shuffle, EstiloReproduccion.Sattolo];
-            songIndex = (songIndex + 1 == playlistLength) ? -1 : songIndex;
-
-            if(songIndex == -1 && shuffleCheck.indexOf(RadioCassette.estiloReproduccion) !== -1){
-                oldShuffleSongs = RadioCassette.canciones.copy();
-
-                let lastSOngFromOldList = oldShuffleSongs[oldShuffleSongs.length - 1];
-
-                do{
-                    if(RadioCassette.estiloReproduccion === EstiloReproduccion.Shuffle){
-                        RadioCassette.canciones.shuffle();
-                    }else{
-                        RadioCassette.canciones = oldShuffleSongs.copy();
-                        RadioCassette.canciones.sattolo();
-                    }
-                }while(RadioCassette.canciones[0] === lastSOngFromOldList);
-
-                console.log("----- Lista Antigua -----");
-                console.log(oldShuffleSongs);
-                console.log("----- Lista Nueva -----");
-                console.log(RadioCassette.canciones);
+            if(RadioCassette.mostrarTiempoGeneral == 1){
+                updateIndicators(currentTime, duration);
             }
-        }
 
-        if(RadioCassette.mostrarTiempoGeneral == 1){
-            updateIndicators(currentTime, duration);
-        }
-
-        // Se obtiene los valores de la siguiente canción
-        if(songIndex < playlistLength - 1){
+            // Se obtiene los valores de la siguiente canción
             songIndex++;
             currentSong = {
                 index: songIndex,
@@ -698,6 +675,8 @@ function onClickBtnForward() {
             setSource(currentSong.path, currentSong.type)
                 .then(() => player.play())
                 .catch(() => console.error("Error on load source: ", currentSong.path));
+        }else{
+            player.currentTime = player.duration;
         }
     }
 }
@@ -811,7 +790,9 @@ function _Audio() {
 
 // Dibujar el recorrido de la cinta
 function drawHeadband() {
+
     let [_width, _height] = $('.cassett').css(['width', 'height']).map(i => i.numberFromPx()),
+        _oldpath = headband.getAttribute('d'),
         _path = `
         M ${rollerLeft.css('left').numberFromPx() - rollerLeftShadow}, ${rollerLeft.css('top').numberFromPx() + (rollerLeft.offsetHeight / 2)}
 
@@ -832,8 +813,13 @@ function drawHeadband() {
 
     headbandContainer.setAttribute('viewBox', `0 0 ${_width} ${_height}`);
 
-    headband.setAttribute('d', _path);
-    $('.headband-copy').forEach(node => node.setAttribute('d', _path));
+    try{
+        headband.setAttribute('d', _path);
+        $('.headband-copy').forEach(node => node.setAttribute('d', _path));
+    }catch{
+        headband.setAttribute('d', _oldPath);
+        $('.headband-copy').forEach(node => node.setAttribute('d', _oldPath));
+    }
 
     totalOffset = headband.getTotalLength();
     root.set('largocinta', totalOffset);
