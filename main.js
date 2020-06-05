@@ -202,7 +202,7 @@ const RadioCassette = {
     reproductorTipo: 1, // Tipo de reproductor 1=lista, 2=radio
     canciones: SONGS, // Lista de canciones a reproducir para la opción 1 de 'reproductorTipo' o la dirección para la opción 2 de 'reproductorTipo'
     url: 'https://icecast.teveo.cu/b3jbfThq',//'http://198.27.83.198:5140/stream', // URL de la radio
-    mostrarTiempoGeneral: 1, // Mostrar tiempo general de la reproducción, 1=sí, 0=no
+    mostrarTiempoGeneral: 0, // Mostrar tiempo general de la reproducción, 1=sí, 0=no
     valorTiempoGeneral: "01:01:10", // Tiempo de duración en segundos para el tipo de reproducción general, 1 hora = 3600 segundos
     estiloReproduccion: 1, // Tipo de reproducción 1=inicio a fin, 2=inicio a fin y repetir, 3=revolver lista, 4=sattolo
     tiempoFinal: 1, // Tipo de tiempo final 1=timepo total, 2=tiempo restante
@@ -359,10 +359,14 @@ function onCurrentTimeInterval() {
     if(RadioCassette.reproductorTipo === ReproductorTipo.Stream){
         if(currentTime >= duration){
             updateIndicators(duration, duration);
-            
-            setTimeout(() => onClickBtnStop(), 500);
+            player.pause();
+            clearInterval(currentTimeInterval);
 
-            setTimeout(() => { setSource(RadioCassette.url).then(() => onClickBtnStart()) }, 2000);
+            restartHeadband();
+            setTimeout(() => {
+                onClickBtnStop();
+                setTimeout(onClickBtnStart, 200);
+            }, 3000);
         }
     }
    
@@ -450,6 +454,8 @@ function onPlayPlayer() {
 // Pausar la reproducción
 function onPausePlayer() {
     //clearInterval(currentTimeInterval);
+    rollerLeft.classList.remove("active");
+    rollerRight.classList.remove("active");
 }
 
 // Al finalizar la pista actual
@@ -477,8 +483,15 @@ function onEndedPlayerData() {
 
     // Al reproducir por lista de canciones
     if(RadioCassette.reproductorTipo == ReproductorTipo.Playlist) {
-        if(songIndex + 1 == playlistLength && EstiloReproduccion.Linear){
-            onClickBtnStop();
+        if(songIndex + 1 == playlistLength && RadioCassette.estiloReproduccion == EstiloReproduccion.Linear){
+            let change = player.change;
+
+            restartHeadband();
+            if(change) setTimeout(() => {
+                onClickBtnStop();
+                setTimeout(onClickBtnStart, 100);
+            }, 3000);
+
             return;
         }
 
@@ -489,6 +502,7 @@ function onEndedPlayerData() {
 
             if(songIndex == -1 && shuffleCheck.indexOf(RadioCassette.estiloReproduccion) !== -1){
                 oldShuffleSongs = RadioCassette.canciones.copy();
+                timeOutValue = 3000;
 
                 let lastSOngFromOldList = oldShuffleSongs[oldShuffleSongs.length - 1];
 
@@ -505,6 +519,15 @@ function onEndedPlayerData() {
                 console.log(oldShuffleSongs);
                 console.log("----- Lista Nueva -----");
                 console.log(RadioCassette.canciones);
+
+                restartHeadband();
+                setTimeout(() => {
+                    onClickBtnStop();
+                    player.change = true;
+                    setTimeout(onClickBtnStart, 100)
+                }, 3000);
+
+                return;
             }
         }
 
@@ -517,7 +540,9 @@ function onEndedPlayerData() {
                 type: (typeof RadioCassette.canciones[songIndex].type == "undefined") ? false : true
             }
 
-            if(RadioCassette.mostrarTiempoGeneral !== 1) restartHeadband();
+            if(RadioCassette.mostrarTiempoGeneral !== 1){
+                restartHeadband();
+            }
 
             setTimeout(() => {
                 setSource(currentSong.path, currentSong.type)
@@ -537,14 +562,14 @@ function restartHeadband() {
     let _duration = 0;
 
     animationEndSong();
-    rollerLeftShadow = getShadowTam();
-    rollerRightShadow = 0;
+    //rollerLeftShadow = getShadowTam();
+    //rollerRightShadow = 0;
 
     setTimeout(() => {
         animationStartSong(true);
-        drawRollerShadow();
-        rollerLeftShadow = 0;
-        rollerRightShadow = getShadowTam();
+        //drawRollerShadow();
+        //rollerLeftShadow = 0;
+        //rollerRightShadow = getShadowTam();
 
         reverseInterval = setInterval(() => { 
             if(_duration >= 1000){
@@ -552,9 +577,10 @@ function restartHeadband() {
             }
 
             _duration+=10;
-            rollerLeftShadow+=0.6;
-            rollerRightShadow-=0.6;
-            drawHeadband(); 
+            if(rollerLeftShadow < 60) rollerLeftShadow+=0.6;
+            if(rollerRightShadow > 0) rollerRightShadow-=0.6;
+            drawHeadband();
+            drawRollerShadow();
         }, 10);
 
         setTimeout(() => {
@@ -625,6 +651,8 @@ function onClickBtnBack() {
         player.back = true;
         player.change = true;
 
+        let timeout = 3000;
+
         if(songIndex === 0){
             onClickBtnStop();
             player.back = true;
@@ -641,12 +669,16 @@ function onClickBtnBack() {
             };
 
             if(RadioCassette.mostrarTiempoGeneral == 1){
+                timeout = 0;
                 updateIndicators(currentTime, duration);
+            }else{
+                restartHeadband();
             }
 
-            setSource(currentSong.path, currentSong.type)
-                .then(() => player.play())
-                .catch(() => console.error("Error on load source: ", currentSong.path));
+            setTimeout(() =>
+                setSource(currentSong.path, currentSong.type)
+                    .then(() => player.play())
+                    .catch(() => console.error("Error on load source: ", currentSong.path)), timeout);
         }
     }
 }
@@ -660,14 +692,19 @@ function onClickBtnForward() {
     if(RadioCassette.reproductorTipo == ReproductorTipo.Playlist && isLoaded) {
         clearInterval(currentTimeInterval);
         player.pause();
+        player.change = true;
+
+        let timeout = 3000;
 
         if(songIndex < playlistLength - 1) {
             acumulateTime+= getSecondsTime(RadioCassette.canciones[songIndex].duration);
             currentTime = acumulateTime;
-            player.change = true;
 
             if(RadioCassette.mostrarTiempoGeneral == 1){
+                timeout = 0;
                 updateIndicators(currentTime, duration);
+            }else{
+                restartHeadband();
             }
 
             // Se obtiene los valores de la siguiente canción
@@ -678,9 +715,10 @@ function onClickBtnForward() {
                 type: (typeof RadioCassette.canciones[songIndex].type == "undefined") ? false : true
             }
 
-            setSource(currentSong.path, currentSong.type)
-                .then(() => player.play())
-                .catch(() => console.error("Error on load source: ", currentSong.path));
+            setTimeout(() =>
+                setSource(currentSong.path, currentSong.type)
+                    .then(() => player.play())
+                    .catch(() => console.error("Error on load source: ", currentSong.path)), timeout);
         }else{
             player.currentTime = player.duration;
         }
