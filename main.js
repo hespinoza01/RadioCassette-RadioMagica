@@ -205,7 +205,7 @@ const RadioCassette = {
     mostrarTiempoGeneral: 1, // Mostrar tiempo general de la reproducción, 1=sí, 0=no
     valorTiempoGeneral: "01:01:10", // Tiempo de duración en segundos para el tipo de reproducción general, 1 hora = 3600 segundos
     estiloReproduccion: 1, // Tipo de reproducción 1=inicio a fin, 2=inicio a fin y repetir, 3=revolver lista, 4=sattolo
-    tiempoFinal: 2, // Tipo de tiempo final 1=timepo total, 2=tiempo restante
+    tiempoFinal: 1, // Tipo de tiempo final 1=timepo total, 2=tiempo restante
     imagenTitulo: 'https://i.pinimg.com/originals/83/81/17/8381171693f7fedc6b6411c39f15f9fb.jpg', // url de la imagen a mostrar detrás del texto del título de la emisora
     textoTitulo: 'Radio Maracaibo', // Texto a mostrar como título de la emisora
     imagenEslogan: 'https://i.pinimg.com/originals/83/81/17/8381171693f7fedc6b6411c39f15f9fb.jpg', // url de la imagen a mostrar detrás del texto del eslogan de la emisora
@@ -270,7 +270,7 @@ function getSecondsTime(duration) {
     return time;
 }
 
-function getShadowTam() { return Number(window.getComputedStyle(root).getPropertyValue('--shadow-tam')); }
+function getShadowTam() { return (window.innerWidth <= 768) ? 60 : 75; }
 
 // carga el recurso de la pista, ya sea la direción del mp3 o el base64
 function setSource(source, type) {
@@ -309,7 +309,7 @@ function setSource(source, type) {
 
 // Actualiza los diferentes indicadores: el tiempo transcurrido, el tiempo faltante, la barra de progreso, avanze da la cinta
 function updateIndicators(currentTime, duration){
-    let comodin = (duration >= 3600) ? "00<span style='color: #e30052'>:</span>" : "";
+    let comodin = (duration >= 3600 && currentTime < 3600) ? "00<span style='color: #e30052'>:</span>" : "";
 
     currentTimeIndicator.innerHTML = comodin + getReadableTime(currentTime);
     rollerRightShadow = currentTime * headbandShadowProportion;
@@ -327,7 +327,8 @@ function updateIndicators(currentTime, duration){
     // Actualizar el porcentaje de avance
     progressValue.dispatchEvent(new CustomEvent('updateprogresssong', {
         detail: {
-            value: Math.floor((currentTime * 100) / (duration - 1))
+            value: Math.floor((currentTime * 100) / (duration - 1)),
+            total: duration
         }
     }));
 
@@ -387,10 +388,11 @@ function onLoadPlayerData() {
     
     let comodin = (duration >= 3600) ? "00<span style='color: #e30052'>:</span>" : "";
 
-    if(!player.change) currentTimeIndicator.innerHTML = comodin + getReadableTime(0);
-    lastTimeIndicator.innerHTML = getReadableTime(duration);
-    headbandShadowProportion = getShadowTam() / duration;
     clearInterval(reverseInterval);
+
+    if(!player.change && RadioCassette.mostrarTiempoGeneral != 1) currentTimeIndicator.innerHTML = comodin + getReadableTime(0);
+    lastTimeIndicator.innerHTML = comodin + (RadioCassette.tiempoFinal == 1) ? getReadableTime(duration) : getReadableTime(duration - currentTime);
+    headbandShadowProportion = getShadowTam() / duration;
     isLoaded = true;
     player.change = false;
 }
@@ -405,9 +407,9 @@ function onPlayPlayer() {
         if(RadioCassette.reproductorTipo === ReproductorTipo.Playlist){
             if(RadioCassette.canciones.length > 0){
                 if(shuffleCheck.indexOf(RadioCassette.estiloReproduccion) !== -1){
-                    if(RadioCassette.estiloReproduccion === EstiloReproduccion.Shuffle){
+                    if(RadioCassette.estiloReproduccion === EstiloReproduccion.Shuffle && !player.back){
                         RadioCassette.canciones.shuffle();
-                    }else{
+                    }else if(!player.back){
                         RadioCassette.canciones.sattolo();
                     }
                     
@@ -439,6 +441,7 @@ function onPlayPlayer() {
         isStarted = true;
     }
 
+    player.back = false;
     btnPlay.classList.add("active");
     rollerLeft.classList.add("active");
     rollerRight.classList.add("active");
@@ -457,7 +460,7 @@ function onEndedPlayerData() {
 
     if(RadioCassette.mostrarTiempoGeneral == 1 && !player.change){
         timeOutValue = 0;
-        acumulateTime += player.duration;
+        acumulateTime += getSecondsTime(RadioCassette.canciones[songIndex].duration);
         currentTime = acumulateTime;
         currentTimeIndicator.innerHTML = getReadableTime(currentTime);
 
@@ -616,12 +619,15 @@ function onClickBtnBack() {
 
     if(RadioCassette.reproductorTipo !== ReproductorTipo.Stream){
         songIndex = (songIndex - 1 <= 0) ? 0 : (songIndex - 1);
+        clearInterval(currentTimeInterval);
 
         player.pause();
+        player.back = true;
         player.change = true;
 
         if(songIndex === 0){
             onClickBtnStop();
+            player.back = true;
             setTimeout(onClickBtnStart, 100);
         }else{
             acumulateTime -= getSecondsTime(RadioCassette.canciones[songIndex].duration) + 1;
@@ -656,7 +662,7 @@ function onClickBtnForward() {
         player.pause();
 
         if(songIndex < playlistLength - 1) {
-            acumulateTime+= player.duration;
+            acumulateTime+= getSecondsTime(RadioCassette.canciones[songIndex].duration);
             currentTime = acumulateTime;
             player.change = true;
 
@@ -735,6 +741,7 @@ function _Audio() {
     // Detener la reproducción
     _audio.isStop = true;
     _audio.change  = false;
+    _audio.back = false;
     _audio.stop =function() {
         this.isStop = true;
         isStarted = false;
@@ -793,33 +800,50 @@ function drawHeadband() {
 
     let [_width, _height] = $('.cassett').css(['width', 'height']).map(i => i.numberFromPx()),
         _oldpath = headband.getAttribute('d'),
-        _path = `
-        M ${rollerLeft.css('left').numberFromPx() - rollerLeftShadow}, ${rollerLeft.css('top').numberFromPx() + (rollerLeft.offsetHeight / 2)}
-
-        L ${ $('.roller-fixed-min-1').css('left').numberFromPx() }, ${ $('.roller-fixed-min-1').css('top').numberFromPx() + ($('.roller-fixed-min-1').offsetHeight / 2) + 2 }
-
-        L ${ $('.roller-left').css('left').numberFromPx() }, ${ $('.roller-left').css('top').numberFromPx() + ($('.roller-left').offsetHeight / 2) }
-
-        L ${ $('.roller-left').css('left').numberFromPx() + ($('.roller-left').offsetWidth / 2) }, ${ $('.roller-left').css('top').numberFromPx() }
-
-        L ${ $('.roller-right').css('left').numberFromPx() + ($('.roller-right').offsetWidth) / 2 }, ${ $('.roller-right').css('top').numberFromPx() }
-
-        L ${ $('.roller-right').css('left').numberFromPx() + ($('.roller-right').offsetWidth) }, ${ $('.roller-right').css('top').numberFromPx() + ($('.roller-right').offsetHeight / 2) }
-
-        L ${ $('.roller-fixed-min-2').css('left').numberFromPx() + ($('.roller-fixed-min-2').offsetWidth) }, ${ $('.roller-fixed-min-2').css('top').numberFromPx() + ($('.roller-fixed-min-2').offsetHeight / 2) + 2 }
-
-        L ${rollerRight.css('left').numberFromPx() + rollerRight.offsetWidth + rollerRightShadow}, ${rollerLeft.css('top').numberFromPx() + (rollerRight.offsetHeight / 2)}
-    `
+        _path = '';
 
     headbandContainer.setAttribute('viewBox', `0 0 ${_width} ${_height}`);
 
-    try{
-        headband.setAttribute('d', _path);
-        $('.headband-copy').forEach(node => node.setAttribute('d', _path));
-    }catch{
-        headband.setAttribute('d', _oldPath);
-        $('.headband-copy').forEach(node => node.setAttribute('d', _oldPath));
-    }
+        let rollerLeft_Left = rollerLeft.css('left').numberFromPx(),
+            rollerLeft_Top = rollerLeft.css('top').numberFromPx(),
+            rollerFixed1_Left = $('.roller-fixed-min-1').css('left').numberFromPx(),
+            rollerFixed1_Top = $('.roller-fixed-min-1').css('top').numberFromPx(),
+            rollerFixed1_Height = $('.roller-fixed-min-1').offsetHeight,
+            rollerLeftTop_Left = $('.roller-left').css('left').numberFromPx(),
+            rollerLeftTop_Top = $('.roller-left').css('top').numberFromPx(),
+            rollerLeftTop_Height = $('.roller-left').offsetHeight,
+            rollerLeftTop_Width = $('.roller-left').offsetWidth,
+            rollerRight_Left = rollerRight.css('left').numberFromPx(),
+            rollerRight_Top = rollerRight.css('top').numberFromPx(),
+            rollerFixed2_Left = $('.roller-fixed-min-2').css('left').numberFromPx(),
+            rollerFixed2_Top = $('.roller-fixed-min-2').css('top').numberFromPx(),
+            rollerFixed2_Height = $('.roller-fixed-min-2').offsetHeight,
+            rollerFixed2_Width = $('.roller-fixed-min-2').offsetWidth,
+            rollerRightTop_Left = $('.roller-right').css('left').numberFromPx(),
+            rollerRightTop_Top = $('.roller-right').css('top').numberFromPx(),
+            rollerRightTop_Height = $('.roller-right').offsetHeight,
+            rollerRightTop_Width = $('.roller-right').offsetWidth;
+        
+        _path = `
+        M ${rollerLeft_Left - rollerLeftShadow}, ${rollerLeft_Top + (rollerLeft.offsetHeight / 2)}
+
+        L ${ rollerFixed1_Left }, ${ rollerFixed1_Top + (rollerFixed1_Height / 2) + 2 }
+
+        L ${ rollerLeftTop_Left }, ${ rollerLeftTop_Top + (rollerLeftTop_Height / 2) }
+
+        L ${ rollerLeftTop_Left + (rollerLeftTop_Width / 2) }, ${ rollerLeftTop_Top }
+
+        L ${ rollerRightTop_Left + (rollerRightTop_Width) / 2 }, ${ rollerRightTop_Top }
+
+        L ${ rollerRightTop_Left + (rollerRightTop_Width) }, ${ rollerRightTop_Top + (rollerRightTop_Height / 2) }
+
+        L ${ rollerFixed2_Left + (rollerFixed2_Width) }, ${ rollerFixed2_Top + (rollerFixed2_Height / 2) + 2 }
+
+        L ${rollerRight_Left + rollerRight.offsetWidth + rollerRightShadow}, ${rollerRight_Top + (rollerRight.offsetHeight / 2)}
+    `
+
+    headband.setAttribute('d', _path);
+    $('.headband-copy').forEach(node => node.setAttribute('d', _path));
 
     totalOffset = headband.getTotalLength();
     root.set('largocinta', totalOffset);
