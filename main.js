@@ -176,8 +176,8 @@ const SONGS = new Array(
     {path: "./canciones/013.mp3", artist: "Danny Ocean", song: "Me rehuso", duration: "03:43"},
     {path: "./canciones/014.mp3", artist: "Danny Ocean", song: "Dembow", duration: "04:23"},
     {path: "./canciones/015.mp3", artist: "Danny Ocean", song: "Vuelve", duration: "03:39"},
-    {path: "https://vk.com/doc297826490_516662404", type:"mp3", artist: "Nacho", song: "Bailame", duration: "55:37"},
-    {path: "https://drive.google.com/uc?export=download&id=1-HRTK8iCj9PZyNmw-RId10BotJuEoI15", type:"mp3", artist: "Nacho", song: "Bailame", duration: "01:52:34"}
+    //{path: "https://vk.com/doc297826490_516662404", type:"mp3", artist: "Nacho", song: "Bailame", duration: "55:37"},
+    //{path: "https://drive.google.com/uc?export=download&id=1-HRTK8iCj9PZyNmw-RId10BotJuEoI15", type:"mp3", artist: "Nacho", song: "Bailame", duration: "01:52:34"}
  );
 
  // Tipo de reproductor, dos opciones: 'playlist' o 'stream'
@@ -559,36 +559,61 @@ function restartHeadband() {
     rollerRight.classList.add('reverse');
     isReverse = true;
 
-    let _duration = 0;
+    let _duration = 0,
+        proportion = getShadowTam() / 50;
 
     animationEndSong();
-    //rollerLeftShadow = getShadowTam();
-    //rollerRightShadow = 0;
+    rollerLeft.css({transition: 'box-shadow 500ms linear'});
+    rollerRight.css({transition: 'box-shadow 500ms linear'});
+    rollerLeftShadow = 0;
+    rollerRightShadow = getShadowTam();
+    drawRollerShadow();
+
+    reverseInterval = setInterval(() => {
+        if(_duration >= 500){
+            clearInterval(reverseInterval);
+        }
+
+        _duration+=10;
+        rollerLeftShadow = (rollerLeftShadow > 0) ? rollerLeftShadow - proportion : 0;
+        rollerRightShadow = (rollerRightShadow < getShadowTam()) ? rollerRightShadow + proportion : getShadowTam();
+        drawHeadband();
+    }, 10);
 
     setTimeout(() => {
         animationStartSong(true);
-        //drawRollerShadow();
-        //rollerLeftShadow = 0;
-        //rollerRightShadow = getShadowTam();
+
+        rollerLeft.css({transition: 'box-shadow 1s linear'});
+        rollerRight.css({transition: 'box-shadow 1s linear'});
+        rollerLeftShadow = getShadowTam();
+        rollerRightShadow = 0;
+        drawRollerShadow();
+
+        rollerLeftShadow = 0;
+        rollerRightShadow = getShadowTam();
+        proportion = getShadowTam() / 35;
+        _duration = 0;
 
         reverseInterval = setInterval(() => { 
-            if(_duration >= 1000){
+            if(_duration >= 350){
                 clearInterval(reverseInterval);
             }
 
             _duration+=10;
-            if(rollerLeftShadow < 60) rollerLeftShadow+=0.6;
-            if(rollerRightShadow > 0) rollerRightShadow-=0.6;
+            rollerLeftShadow = (rollerLeftShadow < getShadowTam()) ? rollerLeftShadow + proportion : getShadowTam();
+            rollerRightShadow = (rollerRightShadow > 0) ? rollerRightShadow - proportion : 0;
             drawHeadband();
-            drawRollerShadow();
+            //drawRollerShadow();
         }, 10);
 
         setTimeout(() => {
             rollerLeft.classList.remove('reverse');
             rollerRight.classList.remove('reverse');
+            rollerLeft.css({transition: ''});
+            rollerRight.css({transition: ''});
             isReverse = false;
-        }, 1000);
-    }, 2000);
+        }, 1250);
+    }, 1750);
 }
 
 // Obtener el total de duración para el modo de mostrarTiempoTotal
@@ -890,7 +915,7 @@ function drawHeadband() {
 // Dibujar cinta contenido en los rodillos inferiores
 function drawRollerShadow() {
     root.set('cintaizquierda', `${rollerLeftShadow}px`);
-    root.set('cintaderecha', `${rollerRightShadow}px`);
+    root.set('cintaderecha', `${(currentTime >= 5) ? rollerRightShadow : 0}px`);
 }
 
 // Función para la animación del recorrido de la cinta en el inicio de la canción
