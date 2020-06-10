@@ -83,6 +83,9 @@
     --tamanioFuenteBarraTiempo: 1.5rem;
     --tamanioFuenteTiempoTotal: 1.5rem;
 
+    --tamanioFuenteValorPorcentaje: 1.2rem;
+    --tamanioFuenteSignoPorcentaje: 1.2rem;
+
     --largocinta: 0;
 
     --transitioncinta: 0s;
@@ -479,18 +482,18 @@ html, body{
     align-items: center;
     width: 4rem;
     height: 100%;
-    font-size: 1rem;
     background-color: black;
 }
 .progress-song-value{
     color: yellow;
     font-family: font604;
     margin-right: .5rem;
-    font-size: 1.2rem;
+    font-size: var(--tamanioFuenteValorPorcentaje);
 }
 .progress-song-porc{
     color: white;
     font-family: font605;
+    font-size: var(--tamanioFuenteSignoPorcentaje);
 }
 
 .progress-bar{

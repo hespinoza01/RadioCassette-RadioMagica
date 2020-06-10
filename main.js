@@ -223,9 +223,11 @@ const RadioCassette = {
     colorCassetteSuperior: 'rgba(159, 159, 159, .09)', // Color del rectangulo superior del cassette, puede ser en valor hexadecimal, rgb o rgba
     colorTornillo: '#333333', // Color de los tornillos en valor hexadecimal
     colorCruzTornillo: '#ffffff', // Color de la cruz dentro de los tornillos en hexadeciaml
-    tamanioFuenteTiempoTranscurrido: '18px', // Tmano de la fuente del tiempo transcurrido
-    tamanioFuenteBarraTiempo: '18px', // Tmano de la fuente de la barra entre en tiempo transcurrido y el tiempo total/restante
-    tamanioFuenteTiempoTotal: '18px', // Tmano de la fuente del tiempo total/restante
+    tamanioFuenteTiempoTranscurrido: '18px', // Tamaño de la fuente del tiempo transcurrido
+    tamanioFuenteBarraTiempo: '18px', // Tamaño de la fuente de la barra entre en tiempo transcurrido y el tiempo total/restante
+    tamanioFuenteTiempoTotal: '18px', // Tamaño de la fuente del tiempo total/restante
+    tamanioFuenteValorPorcentaje: '20px', // Tamaño de la fuente del valor del porcentaje
+    tamanioFuenteSignoPorcentaje: '20px' // Tamaño de la fuente del signo del procentaje
 };
 
 
@@ -1004,6 +1006,9 @@ window.on('load', () => {
     root.set('tamanioFuenteTiempoTranscurrido', RadioCassette.tamanioFuenteTiempoTranscurrido);
     root.set('tamanioFuenteBarraTiempo', RadioCassette.tamanioFuenteBarraTiempo);
     root.set('tamanioFuenteTiempoTotal', RadioCassette.tamanioFuenteTiempoTotal);
+
+    root.set('tamanioFuenteValorPorcentaje', RadioCassette.tamanioFuenteValorPorcentaje);
+    root.set('tamanioFuenteSignoPorcentaje', RadioCassette.tamanioFuenteSignoPorcentaje);
 
     RadioCassette.mostrarTiempoGeneral = (RadioCassette.reproductorTipo == ReproductorTipo.Stream) ? 1 : RadioCassette.mostrarTiempoGeneral;
 
