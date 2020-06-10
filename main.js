@@ -168,7 +168,7 @@ let currentSong = { index: -1, path: '' },
 
 // Arreglo con la lista de las canciones
 const SONGS = new Array(
-    {path: "https://vk.com/doc297826490_503417139", artist: "Nacho", song: "Bailame", duration: "03:27"},
+    //{path: "https://vk.com/doc297826490_503417139", artist: "Nacho", song: "Bailame", duration: "03:27"},
     {path: "./canciones/010.txt", artist: "Nacho", song: "Bailame", duration: "04:39"},
     {path: "./canciones/011.json", artist: "Nacho", song: "Bailame", duration: "04:47"},
     {path: "./canciones/011.mp3", artist: "Nacho", song: "Bailame", duration: "04:09"},
@@ -202,7 +202,7 @@ const RadioCassette = {
     reproductorTipo: 1, // Tipo de reproductor 1=lista, 2=radio
     canciones: SONGS, // Lista de canciones a reproducir para la opción 1 de 'reproductorTipo' o la dirección para la opción 2 de 'reproductorTipo'
     url: 'https://icecast.teveo.cu/b3jbfThq',//'http://198.27.83.198:5140/stream', // URL de la radio
-    mostrarTiempoGeneral: 1, // Mostrar tiempo general de la reproducción, 1=sí, 0=no
+    mostrarTiempoGeneral: 0, // Mostrar tiempo general de la reproducción, 1=sí, 0=no
     valorTiempoGeneral: "01:01:10", // Tiempo de duración en segundos para el tipo de reproducción general, 1 hora = 3600 segundos
     estiloReproduccion: 1, // Tipo de reproducción 1=inicio a fin, 2=inicio a fin y repetir, 3=revolver lista, 4=sattolo
     tiempoFinal: 1, // Tipo de tiempo final 1=timepo total, 2=tiempo restante
@@ -475,6 +475,8 @@ function endSong() {
             onClickBtnStop();
             if(player.isStop) setTimeout(onClickBtnStart, 10);
         }, 3000);
+
+        if(!change) setTimeout(onClickBtnStop, 3000);
 
         return true;
     }
