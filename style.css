@@ -79,6 +79,10 @@
     --cintaizquierda: 0;
     --cintaderecha: 0;
 
+    --tamanioFuenteTiempoTranscurrido: 1.5rem;
+    --tamanioFuenteBarraTiempo: 1.5rem;
+    --tamanioFuenteTiempoTotal: 1.5rem;
+
     --largocinta: 0;
 
     --transitioncinta: 0s;
@@ -503,7 +507,6 @@ html, body{
     align-items: center;
     width: 50%;
     height: 100%;
-    font-size: 1.5rem;
     font-weight: bold;
     color: #8C8989;
 }
@@ -512,10 +515,13 @@ html, body{
 }
 .time__current{
     font-family: font601;
+    font-size: var(--tamanioFuenteTiempoTranscurrido);
     margin-right: .5rem;
 }
+.time__separator{ font-size: var(--tamanioFuenteBarraTiempo); }
 .time__last{
     font-family: font602;
+    font-size: var(--tamanioFuenteTiempoTotal);
     margin-left: .5rem;
 }
 .time__last.remaining{
