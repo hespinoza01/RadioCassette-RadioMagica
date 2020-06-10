@@ -202,7 +202,7 @@ const RadioCassette = {
     reproductorTipo: 1, // Tipo de reproductor 1=lista, 2=radio
     canciones: SONGS, // Lista de canciones a reproducir para la opción 1 de 'reproductorTipo' o la dirección para la opción 2 de 'reproductorTipo'
     url: 'https://icecast.teveo.cu/b3jbfThq',//'http://198.27.83.198:5140/stream', // URL de la radio
-    mostrarTiempoGeneral: 0, // Mostrar tiempo general de la reproducción, 1=sí, 0=no
+    mostrarTiempoGeneral: 1, // Mostrar tiempo general de la reproducción, 1=sí, 0=no
     valorTiempoGeneral: "01:01:10", // Tiempo de duración en segundos para el tipo de reproducción general, 1 hora = 3600 segundos
     estiloReproduccion: 1, // Tipo de reproducción 1=inicio a fin, 2=inicio a fin y repetir, 3=revolver lista, 4=sattolo
     tiempoFinal: 1, // Tipo de tiempo final 1=timepo total, 2=tiempo restante
@@ -519,14 +519,19 @@ function endSong() {
 
 // Al finalizar la pista actual
 function onEndedPlayerData() {
-    let timeOutValue = 3000;
+    let timeOutValue = 3000,
+        playlistLength = RadioCassette.canciones.length;
 
-    rollerLeftShadow = 0;
+    /*rollerLeftShadow = 0;
     rollerRightShadow = getShadowTam();
     drawHeadband();
-    drawRollerShadow();
+    drawRollerShadow();*/
+    if(RadioCassette.mostrarTiempoGeneral == 1){
+        let duration = getSecondsTime(RadioCassette.valorTiempoGeneral);
+        updateIndicators(currentTime, duration);
+    }
 
-    Clean();
+    if(songIndex + 1 < playlistLength && RadioCassette.mostrarTiempoGeneral != 1) Clean();
 
     if(RadioCassette.mostrarTiempoGeneral == 1 && !player.change){
         timeOutValue = 0;
@@ -542,13 +547,11 @@ function onEndedPlayerData() {
             lastTimeIndicator.innerHTML = getReadableTime(value);
         }
     }
-    
-    let playlistLength = RadioCassette.canciones.length;
 
     // Al reproducir por lista de canciones
     if(RadioCassette.reproductorTipo == ReproductorTipo.Playlist) {
         let shuffleCheck = [EstiloReproduccion.Shuffle, EstiloReproduccion.Sattolo];
-        if( endSong() ) return;
+        if( endSong() ) return; 
 
         // Se obtiene los valores de la siguiente canción
         if(songIndex < playlistLength - 1){
@@ -745,7 +748,7 @@ function onClickBtnForward() {
             }else{
                 restartHeadband();
             }
-        }else{console.log('end')
+        }else{
             if( endSong() ) return;
         }
 
